@@ -52,6 +52,9 @@ const PlayerApp = (function () {
         }
       });
       video.addEventListener('play', () => { hideSoundTip(); });
+      video.addEventListener('timeupdate', () => {
+        if (card.classList.contains('active')) updateSentenceSubtitle();
+      });
     });
   }
 
@@ -80,6 +83,23 @@ const PlayerApp = (function () {
     playPhase(0);
   }
 
+
+  /** 逐句字幕：根据播放时间显示当前句 */
+  function updateSentenceSubtitle() {
+    if (!currentClip || !videoEl) return;
+    const sub = document.getElementById('sub_' + currentClip.id);
+    if (!sub) return;
+    const t = videoEl.currentTime || 0;
+    const sentence = getCurrentSentence(currentClip, t);
+    if (currentPhase === 0) {
+      sub.textContent = '';
+    } else if (currentPhase === 1) {
+      sub.textContent = sentence ? sentence.en : '';
+    } else {
+      sub.textContent = sentence ? (sentence.en + '\n' + sentence.zh) : '';
+    }
+  }
+
   /** 更新卡片信息显示 */
   function updateOverlay() {
     const topic = TOPICS.find(t => t.id === currentClip.topic);
@@ -96,8 +116,9 @@ const PlayerApp = (function () {
     const phases = buildPhases(currentClip);
 
     const sub = document.getElementById('sub_' + currentClip.id);
-    sub.textContent = phases[phase].subtitle;
     sub.className = 'card-subtitle phase-' + phase;
+    // 逐句字幕：立即更新当前句
+    updateSentenceSubtitle();
 
     document.getElementById('phaseLabel').textContent = phases[phase].label;
     document.querySelectorAll('.phase-dot').forEach((dot, i) => {

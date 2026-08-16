@@ -51,7 +51,7 @@ html, body {
 .card-overlay {
   position: absolute;
   left: 16px; right: 16px;
-  bottom: 90px;
+  bottom: 96px;
   z-index: 5;
   pointer-events: none;
   text-shadow: 0 2px 8px rgba(0,0,0,0.9);
@@ -72,21 +72,29 @@ html, body {
 
 /* 字幕 */
 .card-subtitle {
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.7;
+  position: absolute;
+  left: 10px; right: 10px;
+  bottom: 58px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
   color: #fff;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,0.9);
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.35);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,0.9);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(3px);
-  max-height: 40vh;
+  max-height: 16vh;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-align: center;
+  z-index: 6;
 }
-.card-subtitle.phase-0 { background: transparent; }
-.card-subtitle.phase-1 { font-size: 18px; }
-.card-subtitle.phase-2 { font-size: 15px; }
+.card-subtitle.phase-0 { background: transparent; -webkit-line-clamp: 0; }
+.card-subtitle.phase-1 { font-size: 15px; }
+.card-subtitle.phase-2 { font-size: 13.5px; -webkit-line-clamp: 3; }
 
 /* ============ 顶部栏 ============ */
 .top-bar {
