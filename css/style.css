@@ -74,7 +74,7 @@ html, body {
 .card-subtitle {
   position: absolute;
   left: 10px; right: 10px;
-  bottom: 58px;
+  bottom: 70px;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.5;
@@ -978,7 +978,7 @@ html, body {
 .region-btn {
   position: fixed;
   left: 14px;
-  bottom: calc(90px + env(safe-area-inset-bottom));
+  bottom: calc(16px + env(safe-area-inset-bottom));
   width: 46px; height: 46px;
   border-radius: 50%;
   background: rgba(255,255,255,0.18);
@@ -1000,7 +1000,7 @@ html, body {
 .refresh-btn {
   position: fixed;
   right: 14px;
-  bottom: calc(90px + env(safe-area-inset-bottom));
+  bottom: calc(16px + env(safe-area-inset-bottom));
   width: 46px; height: 46px;
   border-radius: 50%;
   background: rgba(255,255,255,0.18);
