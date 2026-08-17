@@ -84,8 +84,12 @@ const PlayerApp = (function () {
       }
       clips = batch.concat(CLIPS.filter(c => c.platform === 'tencent'));
     } else {
-      clips = CLIPS.filter(c => c.platform === 'youtube');
-      shuffleArray(clips);
+      let batch = pickBiliBatch(15);
+      if (batch.length < 15) {
+        await ensurePool(15);
+        batch = batch.concat(pickBiliBatch(15 - batch.length));
+      }
+      clips = batch; // 国外：纯B站推荐流
     }
     renderFeed();
     activate(0);
@@ -266,20 +270,22 @@ const PlayerApp = (function () {
     await buildBiliPool();
   }
 
-  /** 进入/刷新V2（国内）：腾讯固定 + B站动态推荐批 */
+  /**
+   * 进入/刷新V2：B站动态推荐批（无限流）
+   * 国内 = 推荐流 + 腾讯固定；国外 = 纯推荐流
+   * （国外平台YouTube/Dailymotion均被大陆服务器限制无法取流，B站海外可直连）
+   */
   async function enterV2() {
-    const tencent = CLIPS.filter(c => c.platform === 'tencent');
+    let batch = pickBiliBatch(12);
+    if (batch.length < 12) {
+      showToast('⏳ 正在加载推荐视频...');
+      await ensurePool(12);
+      batch = batch.concat(pickBiliBatch(12 - batch.length));
+    }
     if (currentRegion === 'domestic') {
-      let batch = pickBiliBatch(12);
-      if (batch.length < 12) {
-        showToast('⏳ 正在加载推荐视频...');
-        await ensurePool(12);
-        batch = batch.concat(pickBiliBatch(12 - batch.length));
-      }
-      clips = batch.concat(tencent);
-      if (biliPool.filter(v => !biliSeen.has(v.bvid)).length < 10) buildBiliPool(); // 后台补充池
+      clips = batch.concat(CLIPS.filter(c => c.platform === 'tencent'));
     } else {
-      clips = CLIPS.filter(c => c.platform === 'youtube');
+      clips = batch; // 国外：纯B站无限推荐流
     }
     if (clips.length === 0) clips = CLIPS.filter(c => c.type === 'embed');
     renderFeed();
@@ -288,20 +294,16 @@ const PlayerApp = (function () {
 
   /** 滑动到底：追加更多B站推荐（无限流） */
   async function loadMoreV2() {
-    if (currentRegion === 'domestic') {
-      let more = pickBiliBatch(8);
-      if (more.length < 8) {
-        await ensurePool(8);
-        more = more.concat(pickBiliBatch(8 - more.length));
-      }
-      if (more.length > 0) {
-        appendClips(more);
-        showToast('🎬 已加载更多推荐');
-      } else {
-        showToast('已经到底啦 · 点🔄换一批');
-      }
+    let more = pickBiliBatch(8);
+    if (more.length < 8) {
+      await ensurePool(8);
+      more = more.concat(pickBiliBatch(8 - more.length));
+    }
+    if (more.length > 0) {
+      appendClips(more);
+      showToast('🎬 已加载更多推荐');
     } else {
-      showToast('已经是最后一个啦');
+      showToast('已经到底啦 · 点🔄换一批');
     }
   }
 
@@ -916,7 +918,7 @@ const PlayerApp = (function () {
       const tag = '<span class="v-tag">V2</span>';
       btnV2.innerHTML = currentRegion === 'domestic'
         ? tag + 'B站·腾讯视频'
-        : tag + '油管YouTube';
+        : tag + 'B站·推荐流';
     }
     // 刷新按钮只在V2模式显示
     const rBtn = document.getElementById('refreshBtn');
@@ -928,7 +930,7 @@ const PlayerApp = (function () {
       } else {
         brand.textContent = currentRegion === 'domestic'
           ? '影跟子读音抖版 · B站推荐流'
-          : '影跟子读音抖版 · 油管YouTube';
+          : '影跟子读音抖版 · 海外推荐流';
       }
     }
   }
