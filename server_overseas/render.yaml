@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: leo-english-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:10000 --timeout 120 --workers 1

@@ -84,12 +84,12 @@ const PlayerApp = (function () {
       }
       clips = batch.concat(CLIPS.filter(c => c.platform === 'tencent'));
     } else {
-      let batch = pickBiliBatch(15);
+      let batch = pickYtBatch(15);
       if (batch.length < 15) {
-        await ensurePool(15);
-        batch = batch.concat(pickBiliBatch(15 - batch.length));
+        await ytEnsurePool(15);
+        batch = batch.concat(pickYtBatch(15 - batch.length));
       }
-      clips = batch; // 国外：纯B站推荐流
+      clips = batch; // 国外：YouTube推荐流（Render API）
     }
     renderFeed();
     activate(0);
@@ -196,12 +196,105 @@ const PlayerApp = (function () {
     } catch (e) { /* 代理/网络失败时静默，卡片显示poster */ }
     return null;
   }
-  /** 预取后续B站视频直链（保证滑动切换时直链已就绪 → 手势内play()带声音） */
-  async function preloadBiliUrls(fromIndex) {
+  /** 预取后续直链视频（B站/YouTube直链；保证滑动切换时直链已就绪 → 手势内play()带声音） */
+  async function preloadDirectUrls(fromIndex) {
     for (let i = fromIndex; i < Math.min(fromIndex + 3, clips.length); i++) {
       const c = clips[i];
-      if (c && c.platform === 'bilibili') await fetchBiliUrl(c);
+      if (c && (c.platform === 'bilibili' || c.platform === 'ytdirect')) {
+        await fetchDirectUrl(c);
+      }
     }
+  }
+
+  /** 直链统一入口：B站经腾讯云代理，YouTube直链经海外API（Render） */
+  async function fetchDirectUrl(clip) {
+    if (clip.platform === 'bilibili') return fetchBiliUrl(clip);
+    if (clip.platform === 'ytdirect') return fetchYtUrl(clip);
+    return null;
+  }
+
+  // ============ 海外 YouTube 无限流（经 Render API） ============
+  const OVERSEAS_API = 'https://leo-english-api.onrender.com'; // 部署后需替换为实际地址
+  const YT_KEYWORDS = [
+    'learn english vlog', 'english vlog', 'learn english',
+    'english speaking practice', 'english conversation',
+    'english listening practice', 'english podcast',
+    'english daily conversation', 'shadowing english', 'english story listening',
+  ];
+  let ytPool = [];            // [{videoId,title,thumb}]
+  let ytSeen = new Set();     // 已推送videoId
+  let ytPages = {};           // keyword -> 已取页数
+  let ytLoading = false;
+  let ytUrls = {};            // videoId -> {url, ts}
+
+  /** 从海外API拉取一批YouTube视频元数据（换关键词/翻页） */
+  async function ytFetchBatch() {
+    if (ytLoading) return 0;
+    ytLoading = true;
+    try {
+      // 随机选一个关键词（轮换），翻页取新内容
+      const kw = YT_KEYWORDS[Math.floor(Math.random() * YT_KEYWORDS.length)];
+      const page = (ytPages[kw] || 1) + 1;
+      const res = await fetch(`${OVERSEAS_API}/api/yt/search?q=${encodeURIComponent(kw)}&page=${page}`);
+      const d = await res.json();
+      const vids = (d && d.videos) || [];
+      let added = 0;
+      vids.forEach(v => {
+        if (v && v.videoId && !ytSeen.has(v.videoId) && !ytPool.some(p => p.videoId === v.videoId)) {
+          ytPool.push({ videoId: v.videoId, title: (v.title || 'YouTube English').slice(0, 60), thumb: v.thumb || '' });
+          added++;
+        }
+      });
+      ytPages[kw] = page;
+      return added;
+    } catch (e) { return 0; }
+    finally { ytLoading = false; }
+  }
+
+  /** 确保YouTube池有足够未推送视频 */
+  async function ytEnsurePool(minCount) {
+    const avail = ytPool.filter(v => !ytSeen.has(v.videoId));
+    if (avail.length >= minCount) return;
+    // 池不足：重置seen，翻页/换词继续拉
+    ytSeen = new Set();
+    for (let i = 0; i < 3 && ytPool.filter(v => !ytSeen.has(v.videoId)).length < minCount; i++) {
+      await ytFetchBatch();
+    }
+  }
+
+  /** 从YouTube池随机挑 n 个未推送 → clip对象 */
+  function pickYtBatch(n) {
+    const available = ytPool.filter(v => !ytSeen.has(v.videoId));
+    shuffleArray(available);
+    const picked = available.slice(0, n);
+    picked.forEach(v => ytSeen.add(v.videoId));
+    return picked.map(v => ({
+      id: 'ytd-' + v.videoId,
+      videoId: v.videoId,
+      title: v.title || 'YouTube English',
+      cover: v.thumb || '',
+      source: 'YouTube · 推荐',
+      type: 'embed',
+      platform: 'ytdirect',
+      region: 'overseas',
+      stars: 3,
+      topic: 'daily'
+    }));
+  }
+
+  /** 获取YouTube直链（海外API，带缓存） */
+  async function fetchYtUrl(clip) {
+    const cached = ytUrls[clip.videoId];
+    if (cached && Date.now() - cached.ts < 30 * 60 * 1000) return cached.url;
+    try {
+      const res = await fetch(`${OVERSEAS_API}/api/yt/stream?videoId=${clip.videoId}`);
+      const d = await res.json();
+      if (d && d.url) {
+        ytUrls[clip.videoId] = { url: d.url, ts: Date.now() };
+        return d.url;
+      }
+    } catch (e) { /* 忽略 */ }
+    return null;
   }
 
   // ============ V2 动态推荐流（B站相关视频扩展，无限刷） ============
@@ -271,33 +364,48 @@ const PlayerApp = (function () {
   }
 
   /**
-   * 进入/刷新V2：B站动态推荐批（无限流）
-   * 国内 = 推荐流 + 腾讯固定；国外 = 纯推荐流
-   * （国外平台YouTube/Dailymotion均被大陆服务器限制无法取流，B站海外可直连）
+   * 进入/刷新V2：
+   * 国内 = B站动态推荐批 + 腾讯固定（腾讯云代理）
+   * 国外 = YouTube 动态推荐批（Render海外API）
    */
   async function enterV2() {
-    let batch = pickBiliBatch(12);
-    if (batch.length < 12) {
-      showToast('⏳ 正在加载推荐视频...');
-      await ensurePool(12);
-      batch = batch.concat(pickBiliBatch(12 - batch.length));
-    }
     if (currentRegion === 'domestic') {
+      let batch = pickBiliBatch(12);
+      if (batch.length < 12) {
+        showToast('⏳ 正在加载推荐视频...');
+        await ensurePool(12);
+        batch = batch.concat(pickBiliBatch(12 - batch.length));
+      }
       clips = batch.concat(CLIPS.filter(c => c.platform === 'tencent'));
     } else {
-      clips = batch; // 国外：纯B站无限推荐流
+      let batch = pickYtBatch(12);
+      if (batch.length < 12) {
+        showToast('⏳ 正在连接海外服务器...');
+        await ytEnsurePool(12);
+        batch = batch.concat(pickYtBatch(12 - batch.length));
+      }
+      clips = batch;
     }
     if (clips.length === 0) clips = CLIPS.filter(c => c.type === 'embed');
     renderFeed();
     activate(0);
   }
 
-  /** 滑动到底：追加更多B站推荐（无限流） */
+  /** 滑动到底：追加更多推荐（国内B站 / 国外YouTube，无限流） */
   async function loadMoreV2() {
-    let more = pickBiliBatch(8);
-    if (more.length < 8) {
-      await ensurePool(8);
-      more = more.concat(pickBiliBatch(8 - more.length));
+    let more;
+    if (currentRegion === 'domestic') {
+      more = pickBiliBatch(8);
+      if (more.length < 8) {
+        await ensurePool(8);
+        more = more.concat(pickBiliBatch(8 - more.length));
+      }
+    } else {
+      more = pickYtBatch(8);
+      if (more.length < 8) {
+        await ytEnsurePool(8);
+        more = more.concat(pickYtBatch(8 - more.length));
+      }
     }
     if (more.length > 0) {
       appendClips(more);
@@ -318,8 +426,8 @@ const PlayerApp = (function () {
 
   /** 卡片HTML（供renderFeed/appendClips复用） */
   function createCardHTML(c, i) {
-    if (c.type === 'embed' && c.platform === 'bilibili') {
-      // B站：mp4直链用 <video> 播放（滑动手势内 play() 可带声音自动播放）
+    if (c.type === 'embed' && (c.platform === 'bilibili' || c.platform === 'ytdirect')) {
+      // B站/YouTube直链：<video> 播放（滑动手势内 play() 可带声音自动播放）
       return `
         <video class="feed-video" playsinline preload="none" poster="${c.cover || ''}"></video>
         <div class="card-overlay">
@@ -384,8 +492,8 @@ const PlayerApp = (function () {
       video.addEventListener('ended', () => {
         if (card.classList.contains('active')) {
           const clip = clips[parseInt(card.dataset.index)];
-          if (clip && clip.type === 'embed' && clip.platform === 'bilibili') {
-            // B站直链：播完自动下一条（刷视频模式）
+          if (clip && clip.type === 'embed' && (clip.platform === 'bilibili' || clip.platform === 'ytdirect')) {
+            // 直链视频：播完自动下一条（刷视频模式）
             if (currentIndex < clips.length - 1) activate(currentIndex + 1);
             else loadMoreV2();
           } else if (!autoPaused) {
@@ -465,9 +573,11 @@ const PlayerApp = (function () {
       if (v) {
         if (i === index && !isIframeEmbed) {
           if (clip && clip.type === 'embed' && clip.platform === 'bilibili') {
-            // B站直链：缓存命中→手势内play()带声音；未命中→静音起播，直链到达后换源
+            // B站/YouTube直链：缓存命中→手势内play()带声音；未命中→静音起播，直链到达后换源
             videoEl = v;
-            const cached = biliUrls[clip.bvid] && biliUrls[clip.bvid].url;
+            const cached = clip.platform === 'bilibili'
+              ? (biliUrls[clip.bvid] && biliUrls[clip.bvid].url)
+              : (ytUrls[clip.videoId] && ytUrls[clip.videoId].url);
             if (cached) {
               if (v.getAttribute('src') !== cached) { v.src = cached; v.load(); }
               v.muted = false;
@@ -475,7 +585,7 @@ const PlayerApp = (function () {
             } else {
               v.muted = true;
               v.play().catch(() => {});
-              fetchBiliUrl(clip).then(u => {
+              fetchDirectUrl(clip).then(u => {
                 if (u && currentClip && currentClip.id === clip.id && card.classList.contains('active')) {
                   v.src = u;
                   v.load();
@@ -484,7 +594,7 @@ const PlayerApp = (function () {
                 }
               });
             }
-            preloadBiliUrls(index + 1);
+            preloadDirectUrls(index + 1);
           } else {
             // V1自有视频
             v.src = clip.video;
@@ -499,7 +609,7 @@ const PlayerApp = (function () {
     });
 
     const activeClip = clips[index];
-    if (activeClip && activeClip.type === 'embed' && activeClip.platform !== 'bilibili') {
+    if (activeClip && activeClip.type === 'embed' && activeClip.platform !== 'bilibili' && activeClip.platform !== 'ytdirect') {
       // 腾讯/油管 iframe
       videoEl = null;
       updateOverlay();
@@ -512,10 +622,10 @@ const PlayerApp = (function () {
       document.querySelectorAll('.phase-dot').forEach(d => d.classList.remove('active'));
       return;
     }
-    if (activeClip && activeClip.type === 'embed' && activeClip.platform === 'bilibili') {
-      // B站直链播放（videoEl已在遍历中设置）
+    if (activeClip && activeClip.type === 'embed' && (activeClip.platform === 'bilibili' || activeClip.platform === 'ytdirect')) {
+      // 直链播放（videoEl已在遍历中设置）
       updateOverlay();
-      document.getElementById('phaseLabel').textContent = 'B站视频';
+      document.getElementById('phaseLabel').textContent = activeClip.platform === 'bilibili' ? 'B站视频' : 'YouTube视频';
       document.querySelectorAll('.phase-dot').forEach(d => d.classList.remove('active'));
       const sub = document.getElementById('sub_' + activeClip.id);
       if (sub) {
@@ -918,7 +1028,7 @@ const PlayerApp = (function () {
       const tag = '<span class="v-tag">V2</span>';
       btnV2.innerHTML = currentRegion === 'domestic'
         ? tag + 'B站·腾讯视频'
-        : tag + 'B站·推荐流';
+        : tag + 'YouTube·推荐流';
     }
     // 刷新按钮只在V2模式显示
     const rBtn = document.getElementById('refreshBtn');
@@ -930,7 +1040,7 @@ const PlayerApp = (function () {
       } else {
         brand.textContent = currentRegion === 'domestic'
           ? '影跟子读音抖版 · B站推荐流'
-          : '影跟子读音抖版 · 海外推荐流';
+          : '影跟子读音抖版 · YouTube推荐流';
       }
     }
   }
