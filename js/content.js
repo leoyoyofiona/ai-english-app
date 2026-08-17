@@ -331,25 +331,25 @@ const CLIPS = [
   },
   {
     id: 'dy-1', title: '零基础英语口语·每日一句', stars: 1, topic: 'daily', type: 'embed',
-    platform: 'douyin', vid: '7610445124124862799', region: 'domestic',
+    platform: 'douyin', vid: '7610445124124862799', region: 'domestic', ar: '9/16',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_a.jpg',
     sentences: [], source: '抖音 · 零基础口语'
   },
   {
     id: 'dy-2', title: '零基础学英语·日常对话', stars: 2, topic: 'life', type: 'embed',
-    platform: 'douyin', vid: '7664204481151814948', region: 'domestic',
+    platform: 'douyin', vid: '7664204481151814948', region: 'domestic', ar: '16/9',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_b.jpg',
     sentences: [], source: '抖音 · 生活英语'
   },
   {
     id: 'dy-3', title: '零基础高频短句1200句', stars: 1, topic: 'daily', type: 'embed',
-    platform: 'douyin', vid: '7576058332608204078', region: 'domestic',
+    platform: 'douyin', vid: '7576058332608204078', region: 'domestic', ar: '9/16',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_a.jpg',
     sentences: [], source: '抖音 · 高频短句'
   },
   {
     id: 'dy-4', title: '零基础对话·跟读磨耳朵', stars: 2, topic: 'speech', type: 'embed',
-    platform: 'douyin', vid: '7366883392098553138', region: 'domestic',
+    platform: 'douyin', vid: '7366883392098553138', region: 'domestic', ar: '16/9',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_c.jpg',
     sentences: [], source: '抖音 · 对话跟读'
   }

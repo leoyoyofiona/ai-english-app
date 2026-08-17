@@ -846,18 +846,8 @@ html, body {
 .feed-embed iframe {
   border: none;
   background: #000;
-}
-/* 横屏视频(16:9)：按宽度适配并居中，不被拉大 */
-.feed-embed iframe[data-ar="16/9"] {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 100%;
-}
-/* 竖屏视频(9:16，抖音)：按高度适配并居中，不被拉大 */
-.feed-embed iframe[data-ar="9/16"] {
-  height: 100%;
-  aspect-ratio: 9 / 16;
-  max-width: 100%;
+  display: block;
+  /* 宽高由 JS fitEmbed() 按视频真实方向(9:16/16:9)精确计算，避免拉伸变形 */
 }
 .card-source {
   font-size: 12px;

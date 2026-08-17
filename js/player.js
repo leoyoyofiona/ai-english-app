@@ -97,6 +97,30 @@ const PlayerApp = (function () {
     return '';
   }
 
+  /**
+   * 平台视频按真实方向精确适配容器（避免 aspect-ratio 双约束导致拉伸变形）
+   * ar: '9/16' 竖屏 | '16/9' 横屏
+   */
+  function fitEmbed(embedDiv, ar) {
+    const frame = embedDiv.querySelector('iframe');
+    if (!frame) return;
+    const ratio = ar === '9/16' ? 9 / 16 : 16 / 9;
+    const W = embedDiv.clientWidth || window.innerWidth || 390;
+    const H = embedDiv.clientHeight || window.innerHeight || 844;
+    let w, h;
+    if (ratio < 1) {
+      // 竖屏：优先高度，超宽则按宽度回退
+      h = H; w = h * ratio;
+      if (w > W) { w = W; h = w / ratio; }
+    } else {
+      // 横屏：优先宽度，超高则按高度回退
+      w = W; h = w / ratio;
+      if (h > H) { h = H; w = h * ratio; }
+    }
+    frame.style.width = Math.round(w) + 'px';
+    frame.style.height = Math.round(h) + 'px';
+  }
+
   /** 向嵌入播放器发送播放/暂停指令 */
   function sendEmbedCommand(frame, cmd) {
     if (!frame || !frame.contentWindow) return;
@@ -209,7 +233,7 @@ const PlayerApp = (function () {
         if (i === index) {
           if (embedDiv && !embedDiv.querySelector('iframe')) {
             const url = embedUrl(clip);
-            const ar = clip.platform === 'douyin' ? '9/16' : '16/9';
+            const ar = clip.ar || '16/9';
             // 上下边缘滑动层 + 中间穿透（用户可点击播放器自身按钮播放）
             embedDiv.innerHTML = `
               <iframe src="${url}" data-ar="${ar}" frameborder="0" allowfullscreen referrerpolicy="unsafe-url" allow="autoplay; encrypted-media"></iframe>
@@ -219,6 +243,8 @@ const PlayerApp = (function () {
               <div class="embed-hint" id="hint_${clip.id}">👆 点击视频播放 · 上下边缘滑动切换</div>`;
             const frame = embedDiv.querySelector('iframe');
             embedPlaying = true;
+            // 按真实方向精确适配尺寸（不拉伸）
+            fitEmbed(embedDiv, ar);
             // iframe加载后再次尝试触发播放（autoplay参数被浏览器拦截时兜底；抖音靠autoplay参数，不重载）
             frame.addEventListener('load', () => {
               setTimeout(() => {
@@ -515,6 +541,15 @@ const PlayerApp = (function () {
       } else if (typeof data.type === 'string') {
         if (data.type === 'playing' || data.type === 'play') embedPlaying = true;
         else if (data.type === 'pause' || data.type === 'ended') embedPlaying = false;
+      }
+    });
+
+    // 屏幕旋转/窗口变化时重新适配嵌入视频尺寸（防止拉伸变形）
+    window.addEventListener('resize', () => {
+      const embedDiv = document.querySelector('.video-card.active .feed-embed');
+      if (embedDiv && embedDiv.querySelector('iframe')) {
+        const clip = clips[currentIndex];
+        fitEmbed(embedDiv, clip && clip.ar ? clip.ar : '16/9');
       }
     });
 
