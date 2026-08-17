@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#000000">
-<title>AI口语 · 刷着学英语</title>
+<title>LEO · 刷着学英语</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -18,32 +18,13 @@
 
   <!-- 顶部栏 -->
   <div class="top-bar">
-    <div class="app-brand">🎧 AI口语</div>
+    <div class="app-brand">LEO</div>
     <div class="filter-row" id="filterRow">
       <button class="filter-chip active" data-filter="all">全部</button>
       <!-- 星级/主题筛选由JS注入 -->
     </div>
   </div>
 
-  <!-- 右下角操作栏（跟随当前视频） -->
-  <div class="action-bar" id="actionBar">
-    <div class="action-item">
-      <div class="action-icon">📚</div>
-      <div class="action-label" id="actionStars">★</div>
-    </div>
-    <div class="action-item">
-      <div class="action-icon">🎯</div>
-      <div class="action-label" id="actionTopic">主题</div>
-    </div>
-    <div class="action-item" id="actionLesson">
-      <div class="action-icon">🧠</div>
-      <div class="action-label">AI小课堂</div>
-    </div>
-    <div class="action-item" id="actionSound">
-      <div class="action-icon">🔊</div>
-      <div class="action-label">声音</div>
-    </div>
-  </div>
 
   <!-- 底部提示 -->
   <div class="bottom-hint">
@@ -55,20 +36,12 @@
     <div class="phase-label" id="phaseLabel">第一遍 · 听</div>
   </div>
 
-  <div class="sound-tip" id="soundTip">🔊 点击开启声音</div>
-
-  <!-- AI小课堂 -->
-  <div class="lesson-overlay" id="lessonOverlay">
-    <div class="lesson-close" id="lessonClose">✕</div>
-    <div class="lesson-content" id="lessonContent"></div>
-  </div>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script src="js/content.js?v=2"></script>
 <script src="js/player.js?v=2"></script>
-<script src="js/ai_lesson.js?v=2"></script>
 <script src="js/app.js?v=2"></script>
 </body>
 </html>

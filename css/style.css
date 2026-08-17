@@ -106,11 +106,16 @@ html, body {
   pointer-events: none;
 }
 .app-brand {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 3px;
   margin-bottom: 10px;
   text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  background: linear-gradient(90deg, #fff, #FFD36E);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
 .filter-row {
   display: flex;

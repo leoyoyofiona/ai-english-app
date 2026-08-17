@@ -14,7 +14,6 @@ const PlayerApp = (function () {
   let videoEl = null;
   let phaseTimer = null;
   let autoPaused = false;
-  let soundOn = true;
   let activeFilter = 'all';
 
   // ============ 初始化 ============
@@ -34,8 +33,6 @@ const PlayerApp = (function () {
       card.innerHTML = `
         <video class="feed-video" playsinline loop preload="${i < 2 ? 'auto' : 'none'}" src="${c.video}"></video>
         <div class="card-overlay">
-          <div class="card-title">${c.title}</div>
-          <div class="card-stars">${'★'.repeat(c.stars)}<span class="stars-dim">${'★'.repeat(5 - c.stars)}</span></div>
           <div class="card-subtitle" id="sub_${c.id}"></div>
         </div>`;
       feed.appendChild(card);
@@ -51,7 +48,7 @@ const PlayerApp = (function () {
           if (!autoPaused) advancePhase();
         }
       });
-      video.addEventListener('play', () => { hideSoundTip(); });
+      video.addEventListener('play', () => {});
       video.addEventListener('timeupdate', () => {
         if (card.classList.contains('active')) updateSentenceSubtitle();
       });
@@ -102,9 +99,6 @@ const PlayerApp = (function () {
 
   /** 更新卡片信息显示 */
   function updateOverlay() {
-    const topic = TOPICS.find(t => t.id === currentClip.topic);
-    document.getElementById('actionStars').textContent = '★'.repeat(currentClip.stars);
-    document.getElementById('actionTopic').textContent = topic ? topic.name : '';
     document.getElementById('phaseDots').innerHTML = [0,1,2].map(i =>
       `<div class="phase-dot${i === currentPhase ? ' active' : ''}"></div>`).join('');
   }
@@ -125,10 +119,10 @@ const PlayerApp = (function () {
       dot.classList.toggle('active', i === phase);
     });
 
-    videoEl.muted = !soundOn;
+    videoEl.muted = false;
     videoEl.currentTime = 0;
     const p = videoEl.play();
-    if (p) p.catch(() => showSoundTip());
+    if (p) p.catch(() => {});
 
     const dur = (videoEl.duration && isFinite(videoEl.duration)) ? videoEl.duration : 20;
     phaseTimer = setTimeout(() => {
@@ -246,51 +240,19 @@ const PlayerApp = (function () {
       togglePlay();
     });
 
-    document.getElementById('actionSound').addEventListener('click', toggleSound);
-    document.getElementById('actionLesson').addEventListener('click', () => {
-      AiLesson.open();
-      videoEl.pause();
-    });
-    document.getElementById('lessonClose').addEventListener('click', () => {
-      AiLesson.close();
-      if (videoEl) videoEl.play().catch(() => {});
-    });
   }
 
   function togglePlay() {
     if (!videoEl) return;
     if (videoEl.paused) {
       videoEl.muted = false;
-      soundOn = true;
-      updateSoundBtn();
       const p = videoEl.play();
-      if (p) p.catch(() => showSoundTip());
-      hideSoundTip();
+      if (p) p.catch(() => {});
     } else {
       videoEl.pause();
     }
   }
 
-  function toggleSound() {
-    soundOn = !soundOn;
-    if (videoEl) videoEl.muted = !soundOn;
-    updateSoundBtn();
-    if (soundOn && videoEl && videoEl.paused) {
-      const p = videoEl.play();
-      if (p) p.catch(() => showSoundTip());
-    }
-  }
-
-  function updateSoundBtn() {
-    document.getElementById('actionSound').querySelector('.action-icon').textContent = soundOn ? '🔊' : '🔇';
-  }
-
-  function showSoundTip() {
-    document.getElementById('soundTip').style.display = 'block';
-  }
-  function hideSoundTip() {
-    document.getElementById('soundTip').style.display = 'none';
-  }
 
   /** 启动 */
   function start() {
