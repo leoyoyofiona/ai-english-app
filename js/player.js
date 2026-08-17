@@ -243,6 +243,16 @@ const PlayerApp = (function () {
   /** 上滑：下一遍 / 下一条 */
   function swipeUp() {
     autoPaused = false;
+    const cur = clips[currentIndex];
+    if (cur && cur.type === 'embed') {
+      // 平台视频：直接切下一条（无三遍听力）
+      if (currentIndex < clips.length - 1) {
+        activate(currentIndex + 1);
+      } else {
+        showToast('已经是最后一个啦');
+      }
+      return;
+    }
     if (currentPhase < 2) {
       playPhase(currentPhase + 1);
     } else if (currentIndex < clips.length - 1) {
@@ -255,6 +265,16 @@ const PlayerApp = (function () {
   /** 下滑：回看 */
   function swipeDown() {
     autoPaused = false;
+    const cur = clips[currentIndex];
+    if (cur && cur.type === 'embed') {
+      // 平台视频：直接切上一条
+      if (currentIndex > 0) {
+        activate(currentIndex - 1);
+      } else {
+        showToast('已经是第一个啦');
+      }
+      return;
+    }
     if (currentPhase > 0) {
       playPhase(currentPhase - 1);
     } else if (currentIndex > 0) {

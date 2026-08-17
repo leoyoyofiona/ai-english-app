@@ -282,6 +282,42 @@ const CLIPS = [
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_a.jpg',
     sentences: [],
     source: 'YouTube · Slow English'
+  },
+  {
+    id: 'bili-3', title: '国外真实生活Vlog(100集)', stars: 2, topic: 'daily', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1kAv1BDEAh',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_b.jpg',
+    sentences: [], source: 'B站 · 真实生活Vlog'
+  },
+  {
+    id: 'bili-4', title: '日常英语口语2000场景', stars: 2, topic: 'daily', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1emBiYcEAV',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_a.jpg',
+    sentences: [], source: 'B站 · 场景口语'
+  },
+  {
+    id: 'bili-5', title: '日常英语1000句影子跟读', stars: 2, topic: 'speech', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1FJ411u7ck',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_c.jpg',
+    sentences: [], source: 'B站 · 影子跟读'
+  },
+  {
+    id: 'bili-6', title: '零基础旅行英语', stars: 1, topic: 'travel', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1xdGnzUE3u',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_b.jpg',
+    sentences: [], source: 'B站 · 旅行英语'
+  },
+  {
+    id: 'bili-7', title: '全英Vlog·忙碌的一天', stars: 3, topic: 'daily', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1pRRXBZEe2',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_d.jpg',
+    sentences: [], source: 'B站 · 全英Vlog'
+  },
+  {
+    id: 'bili-8', title: '机场英语听力场景', stars: 2, topic: 'travel', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1ZA4y1S7Jh',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_c.jpg',
+    sentences: [], source: 'B站 · 场景听力'
   }
 ]
 
