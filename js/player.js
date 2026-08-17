@@ -15,6 +15,7 @@ const PlayerApp = (function () {
   let phaseTimer = null;
   let autoPaused = false;
   let activeFilter = 'all';
+  let currentVersion = 'v1'; // v1=精选下载三遍听力 | v2=在线平台搬运
 
   // ============ 初始化 ============
   function init() {
@@ -367,10 +368,41 @@ const PlayerApp = (function () {
 
   /** 启动 */
   function start() {
-    clips = CLIPS.slice();
+    bindVersionSwitch();
+    // 默认V1：只加载自有视频
+    currentVersion = 'v1';
+    document.getElementById('btnV1').classList.add('active');
+    clips = CLIPS.filter(c => c.type !== 'embed');
     renderFeed();
     activate(0);
     bindHome();
+    // 首页也按V1渲染
+    renderHomeGrid('all');
+  }
+
+  // ============ 版本切换 ============
+  function bindVersionSwitch() {
+    document.getElementById('btnV1').addEventListener('click', () => switchVersion('v1'));
+    document.getElementById('btnV2').addEventListener('click', () => switchVersion('v2'));
+  }
+
+  function switchVersion(v) {
+    currentVersion = v;
+    document.getElementById('btnV1').classList.toggle('active', v === 'v1');
+    document.getElementById('btnV2').classList.toggle('active', v === 'v2');
+    if (v === 'v1') {
+      clips = CLIPS.filter(c => c.type !== 'embed');
+    } else {
+      clips = CLIPS.filter(c => c.type === 'embed');
+    }
+    if (clips.length === 0) clips = CLIPS.slice();
+    const brand = document.querySelector('.app-name');
+    if (brand) {
+      brand.textContent = v === 'v1' ? '影跟子读音抖版 · V1精选' : '影跟子读音抖版 · V2在线';
+    }
+    renderFeed();
+    activate(0);
+    renderHomeGrid('all');
   }
 
   // ============ 首页图文卡片流 ============
@@ -396,9 +428,11 @@ const PlayerApp = (function () {
 
   function renderHomeGrid(topic) {
     const grid = document.getElementById('homeGrid');
-    let list = CLIPS.slice();
-    if (topic !== 'all') list = list.filter(c => c.topic === topic);
+    let list = currentVersion === 'v1'
+      ? CLIPS.filter(c => c.type !== 'embed')
+      : CLIPS.filter(c => c.type === 'embed');
     if (list.length === 0) list = CLIPS.slice();
+    if (topic !== 'all') list = list.filter(c => c.topic === topic);
     grid.innerHTML = list.map((c, i) => `
       <div class="home-card" data-video="${c.id}">
         <div class="home-card-cover" style="background-image:url('${c.cover}')"></div>
@@ -410,9 +444,12 @@ const PlayerApp = (function () {
     grid.querySelectorAll('.home-card').forEach(card => {
       card.addEventListener('click', () => {
         const cid = card.dataset.video;
-        const idx = CLIPS.findIndex(c => c.id === cid);
+        const list = currentVersion === 'v1'
+          ? CLIPS.filter(c => c.type !== 'embed')
+          : CLIPS.filter(c => c.type === 'embed');
+        const idx = list.findIndex(c => c.id === cid);
         if (idx >= 0) {
-          clips = CLIPS.slice();
+          clips = list;
           closeHome();
           activate(idx);
         }

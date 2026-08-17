@@ -638,6 +638,29 @@ html, body {
   cursor: pointer;
   white-space: nowrap;
 }
+/* 版本切换 */
+.version-switch {
+  display: flex;
+  background: rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 2px;
+  gap: 2px;
+}
+.v-btn {
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.8);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.v-btn.active {
+  background: #fff;
+  color: #4A5CFF;
+}
 
 /* ============ 首页图文卡片流 ============ */
 .home-view {
