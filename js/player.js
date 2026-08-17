@@ -427,7 +427,7 @@ const PlayerApp = (function () {
     if (clips.length === 0) clips = CLIPS.slice();
     const brand = document.querySelector('.app-name');
     if (brand) {
-      brand.textContent = v === 'v1' ? '影跟子读音抖版 · V1精选' : '影跟子读音抖版 · V2在线';
+      brand.textContent = v === 'v1' ? '影跟子读音抖版 · 流畅下载三遍听力' : '影跟子读音抖版 · B站油管抖音搬运工';
     }
     renderFeed();
     activate(0);

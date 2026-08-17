@@ -663,13 +663,21 @@ html, body {
 .v-btn {
   border: none;
   background: transparent;
-  color: rgba(255,255,255,0.8);
-  font-size: 11px;
+  color: rgba(255,255,255,0.85);
+  font-size: 9.5px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 13px;
+  padding: 4px 8px;
+  border-radius: 12px;
   cursor: pointer;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+}
+.v-btn .v-tag {
+  font-size: 11px;
+  font-weight: 900;
 }
 .v-btn.active {
   background: #fff;
