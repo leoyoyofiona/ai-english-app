@@ -86,13 +86,14 @@ const PlayerApp = (function () {
   /** 平台嵌入播放器地址 */
   function embedUrl(clip) {
     if (clip.platform === 'bilibili') {
-      return `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0&autoplay=1`;
+      // muted=1：浏览器拦截带声音自动播放，静音自动播最可靠；点击后解除
+      return `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0&autoplay=1&muted=1`;
     }
     if (clip.platform === 'youtube') {
-      return `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0&enablejsapi=1`;
+      return `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0&mute=1&enablejsapi=1`;
     }
-    if (clip.platform === 'douyin') {
-      return `https://open.douyin.com/player/video?vid=${clip.vid}&autoplay=1`;
+    if (clip.platform === 'tencent') {
+      return `https://v.qq.com/txp/iframe/player.html?vid=${clip.vid}&autoplay=true`;
     }
     return '';
   }
@@ -137,15 +138,24 @@ const PlayerApp = (function () {
         // 兼容两种消息格式（官方API支持 postMessage 控制）
         frame.contentWindow.postMessage({ type: cmd, data: {} }, '*');
         frame.contentWindow.postMessage({ type: cmd }, '*');
-      } else if (clip.platform === 'douyin') {
-        // 抖音无公开控制API：重载 iframe 触发 autoplay
-        if (cmd === 'play') {
-          const src = frame.getAttribute('src');
-          frame.setAttribute('src', '');
-          requestAnimationFrame(() => frame.setAttribute('src', src));
-        }
       }
+      // 腾讯视频无公开控制API：由播放器自身按钮控制
     } catch (e) { /* 跨域或无效时忽略 */ }
+  }
+
+  /** 点击视频时尝试开启声音（浏览器首次自动播放强制静音，需用户交互后解除） */
+  function sendEmbedUnmute(frame) {
+    if (!frame || !frame.contentWindow) return;
+    try {
+      const clip = clips[currentIndex];
+      if (!clip) return;
+      if (clip.platform === 'youtube') {
+        frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
+      } else if (clip.platform === 'bilibili') {
+        frame.contentWindow.postMessage({ type: 'mute', data: { muted: false } }, '*');
+      }
+      // 腾讯视频：点击提示用户操作播放器自身按钮
+    } catch (e) { /* 忽略 */ }
   }
 
   // ============ 初始化 ============
@@ -240,7 +250,7 @@ const PlayerApp = (function () {
               <div class="swipe-pass"></div>
               <div class="swipe-layer swipe-top"></div>
               <div class="swipe-layer swipe-bottom"></div>
-              <div class="embed-hint" id="hint_${clip.id}">👆 点击视频播放 · 上下边缘滑动切换</div>`;
+              <div class="embed-hint" id="hint_${clip.id}">🔊 已静音自动播放 · 点击开启声音</div>`;
             const frame = embedDiv.querySelector('iframe');
             embedPlaying = true;
             // 按真实方向精确适配尺寸（不拉伸）
@@ -565,16 +575,11 @@ const PlayerApp = (function () {
   }
 
   function togglePlay() {
-    // 平台嵌入视频：通过 postMessage 控制播放/暂停
+    // 平台嵌入视频：点击=尝试开启声音 + 播放/暂停
     if (currentClip && currentClip.type === 'embed') {
       const frame = document.querySelector('.video-card.active .feed-embed iframe');
       if (!frame) return;
-      if (currentClip.platform === 'douyin') {
-        // 抖音无公开控制API：点击始终重载触发播放
-        sendEmbedCommand(frame, 'play');
-        embedPlaying = true;
-        return;
-      }
+      sendEmbedUnmute(frame); // 解除静音（浏览器限制：首次自动播放只能静音）
       if (embedPlaying) {
         sendEmbedCommand(frame, 'pause');
         embedPlaying = false;
