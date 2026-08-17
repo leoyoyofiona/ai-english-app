@@ -288,6 +288,54 @@ const CLIPS = [
     source: 'YouTube · Slow English'
   },
   {
+    id: 'yt-3', title: 'Learn English Vlog - Morning Routine', stars: 3, topic: 'life', type: 'embed',
+    platform: 'youtube', videoId: 'nh36jE2M064', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/nh36jE2M064/hqdefault.jpg',
+    sentences: [], source: 'YouTube · English Vlog'
+  },
+  {
+    id: 'yt-4', title: 'Learn English Vlog - Evening Routine', stars: 3, topic: 'life', type: 'embed',
+    platform: 'youtube', videoId: 'fB9v2oywQHM', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/fB9v2oywQHM/hqdefault.jpg',
+    sentences: [], source: 'YouTube · English Vlog'
+  },
+  {
+    id: 'yt-5', title: 'Learn English in NYC - Slow Vlog', stars: 3, topic: 'travel', type: 'embed',
+    platform: 'youtube', videoId: 'FPsUIuKo6M8', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/FPsUIuKo6M8/hqdefault.jpg',
+    sentences: [], source: 'YouTube · Slow English Vlog'
+  },
+  {
+    id: 'yt-6', title: 'Learn English Through My Trip to London', stars: 3, topic: 'travel', type: 'embed',
+    platform: 'youtube', videoId: '52t241OQ7Ec', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/52t241OQ7Ec/hqdefault.jpg',
+    sentences: [], source: 'YouTube · Comprehensible English'
+  },
+  {
+    id: 'yt-7', title: 'English Speaking - Daily Conversation', stars: 2, topic: 'daily', type: 'embed',
+    platform: 'youtube', videoId: 'm6-1JCh47TY', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/m6-1JCh47TY/hqdefault.jpg',
+    sentences: [], source: 'YouTube · Speaking Practice'
+  },
+  {
+    id: 'yt-8', title: 'Improve Your English Just by Listening', stars: 3, topic: 'daily', type: 'embed',
+    platform: 'youtube', videoId: 'pyOC7HwDgj0', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/pyOC7HwDgj0/hqdefault.jpg',
+    sentences: [], source: 'YouTube · Listening Practice'
+  },
+  {
+    id: 'yt-9', title: 'Everyday English Conversation Practice', stars: 2, topic: 'daily', type: 'embed',
+    platform: 'youtube', videoId: 'henIVlCPVIY', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/henIVlCPVIY/hqdefault.jpg',
+    sentences: [], source: 'YouTube · Conversation Practice'
+  },
+  {
+    id: 'yt-10', title: 'English Podcast for Learning Conversation', stars: 3, topic: 'speech', type: 'embed',
+    platform: 'youtube', videoId: 'bQoWe8vGM7I', region: 'overseas',
+    cover: 'https://i.ytimg.com/vi/bQoWe8vGM7I/hqdefault.jpg',
+    sentences: [], source: 'YouTube · English Podcast'
+  },
+  {
     id: 'bili-3', title: '国外真实生活Vlog(100集)', stars: 2, topic: 'daily', type: 'embed',
     region: 'domestic',
     platform: 'bilibili', bvid: 'BV1kAv1BDEAh', cid: '35018310464',
