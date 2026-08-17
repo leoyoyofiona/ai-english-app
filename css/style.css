@@ -94,7 +94,13 @@ html, body {
 }
 .card-subtitle.phase-0 { background: transparent; -webkit-line-clamp: 0; }
 .card-subtitle.phase-1 { font-size: 15px; }
-.card-subtitle.phase-2 { font-size: 13.5px; -webkit-line-clamp: 3; }
+.card-subtitle.phase-2 {
+  font-size: 13.5px;
+  -webkit-line-clamp: unset;
+  max-height: 32vh;
+  overflow-y: auto;
+  line-height: 1.8;
+}
 
 /* ============ 顶部栏 ============ */
 .top-bar {
@@ -489,7 +495,7 @@ html, body {
 .card-subtitle { line-height: 2; }
 
 .kara-word {
-  color: rgba(255,255,255,0.35);        /* 未读：暗淡 */
+  color: rgba(255,255,255,0.55);        /* 未读：半亮 */
   transition: color 0.12s ease, text-shadow 0.12s ease;
   margin-right: 4px;
   display: inline-block;
@@ -516,7 +522,7 @@ html, body {
 }
 /* 中文卡拉OK字符 */
 .kara-zh-char {
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.55);
   transition: color 0.12s ease, text-shadow 0.12s ease;
 }
 .kara-zh-char.done {
