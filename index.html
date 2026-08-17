@@ -22,15 +22,21 @@
 
   <!-- 顶部栏 -->
   <div class="top-bar">
-    <div class="brand-row">
-      <div class="app-brand">LEO</div>
+    <!-- 品牌区：LEO在上，名称小字在下 -->
+    <div class="brand-block">
+      <div class="brand-row-top">
+        <div class="app-brand">LEO</div>
+        <div class="disclaimer-btn" id="disclaimerBtn">ⓘ</div>
+      </div>
       <div class="app-name">影跟子读音抖版</div>
+    </div>
+    <!-- 版本切换 + 首页（一行，不遮挡视频） -->
+    <div class="ctrl-row">
       <div class="version-switch" id="versionSwitch">
         <button class="v-btn active" id="btnV1"><span class="v-tag">V1</span>流畅下载·三遍听力</button>
         <button class="v-btn" id="btnV2"><span class="v-tag">V2</span>B站·油管·抖音搬运工</button>
       </div>
       <div class="home-btn" id="homeBtn">🏠 首页</div>
-      <div class="disclaimer-btn" id="disclaimerBtn">ⓘ</div>
     </div>
     <div class="filter-row" id="filterRow">
       <button class="filter-chip active" data-filter="all">全部</button>

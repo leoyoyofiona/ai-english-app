@@ -107,8 +107,8 @@ html, body {
   position: absolute;
   top: 0; left: 0; right: 0;
   z-index: 20;
-  padding: calc(14px + env(safe-area-inset-top)) 14px 8px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+  padding: calc(10px + env(safe-area-inset-top)) 12px 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
   pointer-events: none;
 }
 .app-brand {
@@ -536,20 +536,35 @@ html, body {
 }
 
 /* ============ 免责声明 ============ */
-.brand-row {
+.brand-block {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 2px;
+  margin-bottom: 8px;
   pointer-events: auto;
 }
+.brand-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .app-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  letter-spacing: 1px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 2px;
   text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-  margin-right: auto;
+  text-align: center;
+}
+/* 控制行：V1/V2 + 首页 一行，不遮挡视频 */
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  pointer-events: auto;
 }
 .disclaimer-btn {
   width: 22px; height: 22px;
@@ -795,4 +810,16 @@ html, body {
   padding: 4px 10px;
   border-radius: 12px;
   display: inline-block;
+}
+
+/* ============ iframe滑动捕获层 ============ */
+.feed-embed { position: relative; }
+.swipe-layer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 5;
+  background: transparent;
+  touch-action: none;          /* 让滑动事件冒泡给容器 */
+  pointer-events: auto;
+  cursor: pointer;
 }

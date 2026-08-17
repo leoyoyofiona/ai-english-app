@@ -90,9 +90,9 @@ const PlayerApp = (function () {
         if (i === index) {
           if (embedDiv && !embedDiv.querySelector('iframe')) {
             const url = clip.platform === 'bilibili'
-              ? `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0`
+              ? `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0&autoplay=1`
               : `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0`;
-            embedDiv.innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+            embedDiv.innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe><div class="swipe-layer"></div>`;
           }
         } else if (embedDiv) {
           embedDiv.innerHTML = '';
