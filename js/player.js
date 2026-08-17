@@ -140,21 +140,9 @@ const PlayerApp = (function () {
     return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  /** 卡拉OK高频刷新（跟随语音节奏，更流畅） */
-  function startKaraokeLoop() {
-    stopKaraokeLoop();
-    karaokeTimer = setInterval(() => {
-      if (!videoEl || !document.querySelector('.video-card.active')) return;
-      // 跟随播放时间更新卡拉OK字幕（暂停时也保留最后状态）
-      updateSentenceSubtitle();
-    }, 60);
-  }
-  function stopKaraokeLoop() {
-    if (karaokeTimer) {
-      clearInterval(karaokeTimer);
-      karaokeTimer = null;
-    }
-  }
+  /** 卡拉OK刷新：由timeupdate事件驱动（跟随播放时间） */
+  function startKaraokeLoop() {}
+  function stopKaraokeLoop() {}
 
   /** 更新卡片信息显示 */
   function updateOverlay() {
