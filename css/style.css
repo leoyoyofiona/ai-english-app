@@ -614,18 +614,28 @@ html, body {
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 72px; height: 72px;
+  width: 88px; height: 88px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.55);
   backdrop-filter: blur(4px);
   color: #fff;
-  font-size: 32px;
+  font-size: 38px;
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 30;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   animation: popIn 0.2s ease;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.pause-icon::before {
+  content: '';
+  display: block;
+  border-left: 22px solid #fff;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  margin-left: 4px;
 }
 
 /* ============ 首页按钮 ============ */

@@ -335,10 +335,18 @@ const PlayerApp = (function () {
     container.addEventListener('click', (e) => {
       // 排除所有交互控件：筛选chip、操作栏、首页按钮、版本切换、免责声明
       const excluded = ['.filter-chip', '.action-bar', '.home-btn', '.version-switch',
-                        '.v-btn', '.disclaimer-btn', '.brand-row', '.top-bar'];
+                        '.v-btn', '.disclaimer-btn', '.brand-row', '.top-bar', '.pause-icon'];
       if (excluded.some(sel => e.target.closest(sel))) return;
       togglePlay();
     });
+
+    // 点击暂停图标 = 恢复播放
+    const pIcon = document.getElementById('pauseIcon');
+    if (pIcon) {
+      pIcon.addEventListener('click', () => {
+        if (videoEl && videoEl.paused) togglePlay();
+      });
+    }
 
   }
 
@@ -358,9 +366,7 @@ const PlayerApp = (function () {
   function showPauseIcon() {
     const icon = document.getElementById('pauseIcon');
     if (icon) {
-      icon.style.display = 'flex';
-      clearTimeout(icon._timer);
-      icon._timer = setTimeout(() => { icon.style.display = 'none'; }, 1200);
+      icon.style.display = 'flex';  // 持续显示，直到再次点击屏幕
     }
   }
   function hidePauseIcon() {
