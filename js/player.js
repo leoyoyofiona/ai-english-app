@@ -722,7 +722,41 @@ const PlayerApp = (function () {
       ? CLIPS.filter(c => c.type !== 'embed')
       : CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
     if (list.length === 0) list = CLIPS.filter(c => c.type === 'embed');
-    if (topic !== 'all') list = list.filter(c => c.topic === topic);
+
+    // ===== "全部" = 主题预览卡片（每主题一张） =====
+    if (topic === 'all') {
+      grid.innerHTML = TOPICS.map(tp => {
+        const clips = list.filter(c => c.topic === tp.id);
+        const cover = clips[0] ? clips[0].cover : '';
+        const stars = clips.length ? Math.min(...clips.map(c => c.stars)) : 0;
+        const maxStars = clips.length ? Math.max(...clips.map(c => c.stars)) : 0;
+        return `
+        <div class="home-topic-card" data-topic="${tp.id}" ${clips.length === 0 ? 'data-empty="1"' : ''}>
+          <div class="htc-cover" style="background-image:url('${cover}')"></div>
+          <div class="htc-overlay"></div>
+          <div class="htc-body">
+            <div class="htc-emoji">${tp.emoji}</div>
+            <div class="htc-name">${tp.name}</div>
+            <div class="htc-count">${clips.length ? clips.length + ' 个视频 · ' + '★'.repeat(stars) + '<span class="stars-dim">' + '★'.repeat(5 - maxStars) + '</span>' : '暂无视频'}</div>
+          </div>
+        </div>`;
+      }).join('');
+      grid.querySelectorAll('.home-topic-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const tp = card.dataset.topic;
+          if (card.dataset.empty) { showToast('该主题暂无视频'); return; }
+          // 高亮对应 chip 并切换到该主题的视频网格
+          document.querySelectorAll('.home-topic-chip').forEach(ch => {
+            ch.classList.toggle('active', ch.dataset.topic === tp);
+          });
+          renderHomeGrid(tp);
+        });
+      });
+      return;
+    }
+
+    // ===== 选中主题 = 该主题的视频卡片 =====
+    list = list.filter(c => c.topic === topic);
     const prog = loadProgress();
     grid.innerHTML = list.map((c, i) => {
       const hdone = !!(prog.clips[c.id] && prog.clips[c.id].done);

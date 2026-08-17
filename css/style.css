@@ -791,6 +791,48 @@ html, body {
 .home-card-stars { font-size: 11px; color: #FFB84D; }
 .home-card-stars .stars-dim { color: #dde3f0; }
 
+/* ============ 首页 · 主题预览卡片 ============ */
+.home-topic-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  transition: transform 0.12s ease;
+}
+.home-topic-card:active { transform: scale(0.96); }
+.htc-cover {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #dde3f0;
+}
+.htc-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.68) 100%);
+}
+.htc-body {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 12px;
+  color: #fff;
+  text-align: left;
+}
+.htc-emoji { font-size: 22px; line-height: 1; margin-bottom: 4px; }
+.htc-name { font-size: 15px; font-weight: 800; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+.htc-count { font-size: 11px; opacity: 0.88; margin-top: 3px; }
+/* 暂无视频的主题卡片 */
+.home-topic-card[data-empty="1"] .htc-cover {
+  background: linear-gradient(135deg, #e8ecf7, #d4dbf0);
+}
+.home-topic-card[data-empty="1"] .htc-overlay {
+  background: rgba(255,255,255,0.55);
+}
+.home-topic-card[data-empty="1"] .htc-name { color: #8a93b0; text-shadow: none; }
+.home-topic-card[data-empty="1"] .htc-count { color: #a5adc6; }
+.home-topic-card[data-empty="1"] .htc-emoji { opacity: 0.55; }
+
 /* ============ 平台视频嵌入 ============ */
 .feed-embed {
   position: absolute; inset: 0;
