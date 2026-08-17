@@ -257,6 +257,7 @@ const CLIPS = [
   /* ===== 平台视频（B站/YouTube嵌入，实时更新） ===== */
   {
     id: 'bili-1', title: '3000个场景英语口语', stars: 2, topic: 'daily', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1WKGc63EVs',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_a.jpg',
     sentences: [],
@@ -264,6 +265,7 @@ const CLIPS = [
   },
   {
     id: 'bili-2', title: '零基础旅行英语', stars: 1, topic: 'travel', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1yqTr6CEVJ',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_b.jpg',
     sentences: [],
@@ -271,6 +273,7 @@ const CLIPS = [
   },
   {
     id: 'yt-1', title: 'Learn English Vlog - What I Eat', stars: 3, topic: 'daily', type: 'embed',
+    region: 'overseas',
     platform: 'youtube', videoId: 'RVzIGNFyvYU',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_a.jpg',
     sentences: [],
@@ -278,6 +281,7 @@ const CLIPS = [
   },
   {
     id: 'yt-2', title: 'English Listening - Melbourne Market', stars: 3, topic: 'life', type: 'embed',
+    region: 'overseas',
     platform: 'youtube', videoId: 'mGmI9kGA_fA',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_a.jpg',
     sentences: [],
@@ -285,39 +289,69 @@ const CLIPS = [
   },
   {
     id: 'bili-3', title: '国外真实生活Vlog(100集)', stars: 2, topic: 'daily', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1kAv1BDEAh',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_b.jpg',
     sentences: [], source: 'B站 · 真实生活Vlog'
   },
   {
     id: 'bili-4', title: '日常英语口语2000场景', stars: 2, topic: 'daily', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1emBiYcEAV',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_a.jpg',
     sentences: [], source: 'B站 · 场景口语'
   },
   {
     id: 'bili-5', title: '日常英语1000句影子跟读', stars: 2, topic: 'speech', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1FJ411u7ck',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_c.jpg',
     sentences: [], source: 'B站 · 影子跟读'
   },
   {
     id: 'bili-6', title: '零基础旅行英语', stars: 1, topic: 'travel', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1xdGnzUE3u',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_b.jpg',
     sentences: [], source: 'B站 · 旅行英语'
   },
   {
     id: 'bili-7', title: '全英Vlog·忙碌的一天', stars: 3, topic: 'daily', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1pRRXBZEe2',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_d.jpg',
     sentences: [], source: 'B站 · 全英Vlog'
   },
   {
     id: 'bili-8', title: '机场英语听力场景', stars: 2, topic: 'travel', type: 'embed',
+    region: 'domestic',
     platform: 'bilibili', bvid: 'BV1ZA4y1S7Jh',
     cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_c.jpg',
     sentences: [], source: 'B站 · 场景听力'
+  },
+  {
+    id: 'dy-1', title: '零基础英语口语·每日一句', stars: 1, topic: 'daily', type: 'embed',
+    platform: 'douyin', vid: '7610445124124862799', region: 'domestic',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_a.jpg',
+    sentences: [], source: '抖音 · 零基础口语'
+  },
+  {
+    id: 'dy-2', title: '零基础学英语·日常对话', stars: 2, topic: 'life', type: 'embed',
+    platform: 'douyin', vid: '7664204481151814948', region: 'domestic',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_b.jpg',
+    sentences: [], source: '抖音 · 生活英语'
+  },
+  {
+    id: 'dy-3', title: '零基础高频短句1200句', stars: 1, topic: 'daily', type: 'embed',
+    platform: 'douyin', vid: '7576058332608204078', region: 'domestic',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_a.jpg',
+    sentences: [], source: '抖音 · 高频短句'
+  },
+  {
+    id: 'dy-4', title: '零基础对话·跟读磨耳朵', stars: 2, topic: 'speech', type: 'embed',
+    platform: 'douyin', vid: '7366883392098553138', region: 'domestic',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_c.jpg',
+    sentences: [], source: '抖音 · 对话跟读'
   }
 ]
 
@@ -341,6 +375,8 @@ const STAR_LEVELS = [
   { stars: 3, name: '进阶' },
   { stars: 4, name: '高级' },
   { stars: 5, name: '挑战' }
+
+
 ];
 
 function getClip(id) { return CLIPS.find(c => c.id === id) || null; }

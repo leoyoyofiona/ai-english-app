@@ -16,6 +16,49 @@ const PlayerApp = (function () {
   let autoPaused = false;
   let activeFilter = 'all';
   let currentVersion = 'v1'; // v1=精选下载三遍听力 | v2=在线平台搬运
+  let currentRegion = 'domestic'; // domestic=国内(B站/抖音) | overseas=国外(油管)
+  let embedPlaying = false; // 平台嵌入视频播放状态（粗略跟踪）
+
+  /** 平台嵌入播放器地址 */
+  function embedUrl(clip) {
+    if (clip.platform === 'bilibili') {
+      return `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0&autoplay=1`;
+    }
+    if (clip.platform === 'youtube') {
+      return `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0&enablejsapi=1`;
+    }
+    if (clip.platform === 'douyin') {
+      return `https://open.douyin.com/player/video?vid=${clip.vid}&autoplay=1`;
+    }
+    return '';
+  }
+
+  /** 向嵌入播放器发送播放/暂停指令 */
+  function sendEmbedCommand(frame, cmd) {
+    if (!frame || !frame.contentWindow) return;
+    try {
+      const clip = clips[currentIndex];
+      if (!clip) return;
+      if (clip.platform === 'youtube') {
+        frame.contentWindow.postMessage(JSON.stringify({
+          event: 'command',
+          func: cmd === 'play' ? 'playVideo' : 'pauseVideo',
+          args: []
+        }), '*');
+      } else if (clip.platform === 'bilibili') {
+        // 兼容两种消息格式（官方API支持 postMessage 控制）
+        frame.contentWindow.postMessage({ type: cmd, data: {} }, '*');
+        frame.contentWindow.postMessage({ type: cmd }, '*');
+      } else if (clip.platform === 'douyin') {
+        // 抖音无公开控制API：重载 iframe 触发 autoplay
+        if (cmd === 'play') {
+          const src = frame.getAttribute('src');
+          frame.setAttribute('src', '');
+          requestAnimationFrame(() => frame.setAttribute('src', src));
+        }
+      }
+    } catch (e) { /* 跨域或无效时忽略 */ }
+  }
 
   // ============ 初始化 ============
   function init() {
@@ -89,10 +132,19 @@ const PlayerApp = (function () {
         const embedDiv = card.querySelector('.feed-embed');
         if (i === index) {
           if (embedDiv && !embedDiv.querySelector('iframe')) {
-            const url = clip.platform === 'bilibili'
-              ? `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0&autoplay=1`
-              : `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0`;
-            embedDiv.innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe><div class="swipe-layer"></div>`;
+            const url = embedUrl(clip);
+            const ar = clip.platform === 'douyin' ? '9/16' : '16/9';
+            embedDiv.innerHTML = `<iframe src="${url}" data-ar="${ar}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe><div class="swipe-layer"></div>`;
+            const frame = embedDiv.querySelector('iframe');
+            embedPlaying = true;
+            // iframe加载后再次尝试触发播放（autoplay参数被浏览器拦截时兜底；抖音靠autoplay参数，不重载）
+            frame.addEventListener('load', () => {
+              setTimeout(() => {
+                if (clip.platform === 'bilibili' || clip.platform === 'youtube') {
+                  sendEmbedCommand(frame, 'play');
+                }
+              }, 400);
+            });
           }
         } else if (embedDiv) {
           embedDiv.innerHTML = '';
@@ -353,11 +405,24 @@ const PlayerApp = (function () {
     });
 
     container.addEventListener('click', (e) => {
-      // 排除所有交互控件：筛选chip、操作栏、首页按钮、版本切换、免责声明
+      // 排除所有交互控件：筛选chip、操作栏、首页按钮、版本切换、地区切换、免责声明
       const excluded = ['.filter-chip', '.action-bar', '.home-btn', '.version-switch',
-                        '.v-btn', '.disclaimer-btn', '.brand-row', '.top-bar', '.pause-icon'];
+                        '.v-btn', '.disclaimer-btn', '.brand-row', '.top-bar',
+                        '.pause-icon', '.region-btn', '.region-overlay'];
       if (excluded.some(sel => e.target.closest(sel))) return;
       togglePlay();
+    });
+
+    // 监听嵌入播放器的播放/暂停状态（B站 {type:'playing'|'pause'}，油管 onStateChange）
+    window.addEventListener('message', (e) => {
+      const data = e.data;
+      if (!data) return;
+      if (data.event === 'onStateChange') {
+        embedPlaying = (data.info === 1); // 1=播放中
+      } else if (typeof data.type === 'string') {
+        if (data.type === 'playing' || data.type === 'play') embedPlaying = true;
+        else if (data.type === 'pause' || data.type === 'ended') embedPlaying = false;
+      }
     });
 
     // 点击暂停图标 = 恢复播放
@@ -371,6 +436,25 @@ const PlayerApp = (function () {
   }
 
   function togglePlay() {
+    // 平台嵌入视频：通过 postMessage 控制播放/暂停
+    if (currentClip && currentClip.type === 'embed') {
+      const frame = document.querySelector('.video-card.active .feed-embed iframe');
+      if (!frame) return;
+      if (currentClip.platform === 'douyin') {
+        // 抖音无公开控制API：点击始终重载触发播放
+        sendEmbedCommand(frame, 'play');
+        embedPlaying = true;
+        return;
+      }
+      if (embedPlaying) {
+        sendEmbedCommand(frame, 'pause');
+        embedPlaying = false;
+      } else {
+        sendEmbedCommand(frame, 'play');
+        embedPlaying = true;
+      }
+      return;
+    }
     if (!videoEl) return;
     if (videoEl.paused) {
       videoEl.muted = false;
@@ -396,7 +480,8 @@ const PlayerApp = (function () {
 
 
   /** 启动 */
-  function start() {
+  function start(region) {
+    currentRegion = region || 'domestic';
     bindVersionSwitch();
     // 默认V1：只加载自有视频
     currentVersion = 'v1';
@@ -407,6 +492,46 @@ const PlayerApp = (function () {
     bindHome();
     // 首页也按V1渲染
     renderHomeGrid('all');
+    updateRegionUI();
+  }
+
+  /** 切换地区（国内/国外），影响V2内容与按钮文案 */
+  function setRegion(r) {
+    if (r !== 'domestic' && r !== 'overseas') return;
+    if (r === currentRegion) {
+      updateRegionUI();
+      return;
+    }
+    currentRegion = r;
+    if (currentVersion === 'v2') {
+      clips = CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
+      if (clips.length === 0) clips = CLIPS.filter(c => c.type === 'embed');
+      renderFeed();
+      activate(0);
+    }
+    renderHomeGrid('all');
+    updateRegionUI();
+  }
+
+  /** 刷新版本按钮/品牌名文案（随版本+地区变化） */
+  function updateRegionUI() {
+    const btnV2 = document.getElementById('btnV2');
+    if (btnV2) {
+      const tag = '<span class="v-tag">V2</span>';
+      btnV2.innerHTML = currentRegion === 'domestic'
+        ? tag + 'B站·抖音搬运工'
+        : tag + '油管搬运工';
+    }
+    const brand = document.querySelector('.app-name');
+    if (brand) {
+      if (currentVersion === 'v1') {
+        brand.textContent = '影跟子读音抖版 · 流畅下载三遍听力';
+      } else {
+        brand.textContent = currentRegion === 'domestic'
+          ? '影跟子读音抖版 · B站抖音搬运工'
+          : '影跟子读音抖版 · 油管搬运工';
+      }
+    }
   }
 
   // ============ 版本切换 ============
@@ -422,16 +547,14 @@ const PlayerApp = (function () {
     if (v === 'v1') {
       clips = CLIPS.filter(c => c.type !== 'embed');
     } else {
-      clips = CLIPS.filter(c => c.type === 'embed');
+      // V2：按地区过滤平台（国内=B站·抖音，国外=油管）
+      clips = CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
     }
-    if (clips.length === 0) clips = CLIPS.slice();
-    const brand = document.querySelector('.app-name');
-    if (brand) {
-      brand.textContent = v === 'v1' ? '影跟子读音抖版 · 流畅下载三遍听力' : '影跟子读音抖版 · B站油管抖音搬运工';
-    }
+    if (clips.length === 0) clips = CLIPS.filter(c => c.type === 'embed');
     renderFeed();
     activate(0);
     renderHomeGrid('all');
+    updateRegionUI();
   }
 
   // ============ 首页图文卡片流 ============
@@ -459,8 +582,8 @@ const PlayerApp = (function () {
     const grid = document.getElementById('homeGrid');
     let list = currentVersion === 'v1'
       ? CLIPS.filter(c => c.type !== 'embed')
-      : CLIPS.filter(c => c.type === 'embed');
-    if (list.length === 0) list = CLIPS.slice();
+      : CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
+    if (list.length === 0) list = CLIPS.filter(c => c.type === 'embed');
     if (topic !== 'all') list = list.filter(c => c.topic === topic);
     grid.innerHTML = list.map((c, i) => `
       <div class="home-card" data-video="${c.id}">
@@ -475,7 +598,7 @@ const PlayerApp = (function () {
         const cid = card.dataset.video;
         const list = currentVersion === 'v1'
           ? CLIPS.filter(c => c.type !== 'embed')
-          : CLIPS.filter(c => c.type === 'embed');
+          : CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
         const idx = list.findIndex(c => c.id === cid);
         if (idx >= 0) {
           clips = list;
@@ -498,5 +621,5 @@ const PlayerApp = (function () {
     }
   }
 
-  return { init, start, swipeUp, swipeDown, applyFilter, activate };
+  return { init, start, setRegion, swipeUp, swipeDown, applyFilter, activate };
 })();

@@ -37,6 +37,7 @@
         <button class="v-btn" id="btnV2"><span class="v-tag">V2</span>B站·油管·抖音搬运工</button>
       </div>
       <div class="home-btn" id="homeBtn">🏠 首页</div>
+      <div class="region-btn" id="regionBtn" title="切换地区">🌏</div>
     </div>
     <div class="filter-row" id="filterRow">
       <button class="filter-chip active" data-filter="all">全部</button>
@@ -53,6 +54,24 @@
       <div class="phase-dot"></div>
     </div>
     <div class="phase-label" id="phaseLabel">第一遍 · 听</div>
+  </div>
+
+  <!-- 地区选择弹窗 -->
+  <div class="region-overlay" id="regionOverlay">
+    <div class="region-modal">
+      <div class="region-title">🌏 选择你的地区</div>
+      <div class="region-sub">为了更好的体验，请选择你所在的地区</div>
+      <button class="region-opt" id="regionDomestic">
+        <span class="region-flag">🇨🇳</span>
+        <span class="region-name">国内</span>
+        <span class="region-plat">B站 · 抖音</span>
+      </button>
+      <button class="region-opt" id="regionOverseas">
+        <span class="region-flag">🌍</span>
+        <span class="region-name">国外</span>
+        <span class="region-plat">YouTube 油管</span>
+      </button>
+    </div>
   </div>
 
   <!-- 免责声明弹窗 -->
