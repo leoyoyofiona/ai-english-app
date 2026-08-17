@@ -262,7 +262,7 @@ html, body {
 }
 .toast.show { opacity: 1; }
 
-/* ============ AI小课堂 ============ */
+/* ============ AI原理实验室 ============ */
 .lesson-overlay {
   position: fixed; inset: 0;
   background: linear-gradient(160deg, #0F1629 0%, #1a2350 100%);
@@ -293,97 +293,189 @@ html, body {
   width: 100%;
   margin: 0 auto;
 }
-.lesson-scene {
+
+/* 菜单 */
+.lab-hero { text-align: center; padding: 20px 0 24px; }
+.lab-hero-icon { font-size: 52px; }
+.lab-hero-title { font-size: 24px; font-weight: 900; color: #fff; margin-top: 8px; }
+.lab-hero-sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+.lab-menu { display: flex; flex-direction: column; gap: 12px; }
+.lab-menu-item {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,0.09);
+  border-radius: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.lab-menu-item:active { background: rgba(255,255,255,0.18); }
+.lab-menu-icon { font-size: 30px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); border-radius: 12px; }
+.lab-menu-body { flex: 1; }
+.lab-menu-name { font-size: 15px; font-weight: 800; color: #fff; }
+.lab-menu-desc { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 3px; }
+.lab-menu-arrow { font-size: 22px; color: rgba(255,255,255,0.4); }
+.lab-close-btn {
+  margin-top: 24px;
   text-align: center;
-  margin-bottom: 20px;
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  padding: 12px;
+  cursor: pointer;
 }
-.lesson-scene-icon { font-size: 52px; margin-bottom: 8px; }
-.lesson-scene-tag {
-  display: inline-block;
-  font-size: 11px;
-  color: #FFD36E;
-  background: rgba(255,211,110,0.15);
-  padding: 4px 12px;
-  border-radius: 14px;
-  margin-bottom: 8px;
-  font-weight: 600;
+
+/* 实验页 */
+.exp-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.exp-back {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); color: #fff;
+  border: none; font-size: 18px; cursor: pointer;
 }
-.lesson-title {
-  font-size: 22px;
-  font-weight: 900;
-  color: #fff;
-  margin-bottom: 10px;
-  letter-spacing: 0.5px;
+.exp-title { font-size: 16px; font-weight: 800; color: #fff; }
+.exp-intro { font-size: 13.5px; color: rgba(255,255,255,0.85); line-height: 1.8; margin-bottom: 14px; }
+.exp-intro b { color: #FFD36E; }
+
+/* 实验1 训练 */
+.train-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+.train-tool {
+  flex: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px;
+  background: rgba(255,255,255,0.08); color: #fff;
+  padding: 10px 0; font-size: 13px; font-weight: 700; cursor: pointer;
 }
-.lesson-scene-text {
-  font-size: 14px;
-  color: rgba(255,255,255,0.85);
-  line-height: 1.8;
-  background: rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 12px 14px;
+.train-tool.active { border-color: #FFD36E; background: rgba(255,211,110,0.2); color: #FFD36E; }
+.train-canvas {
+  display: block; width: 100%; max-width: 280px; margin: 0 auto;
+  border-radius: 14px; background: #f5f7ff;
+  touch-action: none;
 }
-.lesson-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+.train-stats { text-align: center; font-size: 13px; color: rgba(255,255,255,0.8); margin: 10px 0; }
+.train-stats b { font-size: 16px; }
+.train-log { min-height: 20px; text-align: center; font-size: 12.5px; margin: 10px 0; }
+.log-warn { color: #FF8A3D; }
+.log-info { color: rgba(255,255,255,0.7); }
+.log-ok { color: #2ECC71; font-weight: 700; }
+.lab-primary-btn {
+  display: block; width: 100%;
+  border: none; border-radius: 14px;
+  background: linear-gradient(90deg, #4A5CFF, #6C7CFF);
+  color: #fff; font-size: 15px; font-weight: 800;
+  padding: 14px; cursor: pointer;
+  margin-top: 10px;
 }
-.lesson-step {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  background: rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 13px 14px;
+.lab-ghost-btn {
+  display: block; width: 100%;
+  border: none; border-radius: 14px;
+  background: rgba(255,255,255,0.12);
+  color: #fff; font-size: 14px; font-weight: 700;
+  padding: 12px; cursor: pointer;
+  margin-top: 10px;
 }
-.lesson-step-icon {
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-.lesson-step-title {
-  font-size: 14.5px;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 3px;
-}
-.lesson-step-desc {
-  font-size: 12.5px;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.7;
-}
-.lesson-insight {
-  display: flex;
-  gap: 10px;
+.lab-insight {
+  margin-top: 14px;
   background: linear-gradient(135deg, rgba(255,211,110,0.2), rgba(255,159,67,0.15));
   border-radius: 14px;
   padding: 13px 14px;
-  margin-bottom: 18px;
-}
-.lesson-insight-icon { font-size: 22px; flex-shrink: 0; }
-.lesson-insight-text {
   font-size: 13px;
   color: rgba(255,255,255,0.9);
   line-height: 1.8;
 }
-.lesson-insight-text b { color: #FFD36E; }
-.lesson-nav {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
+.lab-insight b { color: #FFD36E; }
+
+/* 实验2 语音 */
+.speech-demo { text-align: center; padding: 10px 0 18px; }
+.speech-mic {
+  width: 84px; height: 84px; margin: 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4A5CFF, #9B6CFF);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(74,92,255,0.4);
+  transition: transform 0.15s ease;
 }
-.lesson-btn {
-  border: none;
-  border-radius: 24px;
-  padding: 13px 26px;
+.speech-mic.listening { animation: micPulse 1.2s ease infinite; }
+@keyframes micPulse { 0%,100% { transform: scale(1); box-shadow: 0 8px 24px rgba(255,80,80,0.4);} 50% { transform: scale(1.1); box-shadow: 0 8px 40px rgba(255,80,80,0.7);} }
+.speech-status { font-size: 12.5px; color: rgba(255,255,255,0.7); margin-top: 12px; }
+.speech-result {
+  margin-top: 12px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  min-height: 44px;
+  line-height: 1.6;
+}
+.speech-result.has-text { color: #fff; }
+.lab-steps-mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0; }
+.mini-step { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 4px; text-align: center; font-size: 10.5px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+.mini-step b { display: block; color: #FFD36E; font-size: 12px; margin-bottom: 2px; }
+
+/* 实验3 推荐 */
+.rec-video {
+  background: linear-gradient(135deg, #2E3FBF, #4A5CFF);
+  border-radius: 16px;
+  padding: 28px 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.rec-emoji { font-size: 48px; }
+.rec-name { font-size: 16px; font-weight: 800; color: #fff; margin-top: 8px; }
+.rec-buttons { display: flex; gap: 10px; }
+.rec-like {
+  flex: 1; border: none; border-radius: 14px;
+  background: linear-gradient(90deg, #22B573, #2ECC71);
+  color: #fff; font-size: 15px; font-weight: 800;
+  padding: 13px; cursor: pointer;
+}
+.rec-dislike {
+  flex: 1; border: none; border-radius: 14px;
+  background: rgba(255,255,255,0.15);
+  color: #fff; font-size: 15px; font-weight: 800;
+  padding: 13px; cursor: pointer;
+}
+.rec-progress { text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); margin: 12px 0; }
+.rec-rank { background: rgba(255,255,255,0.07); border-radius: 12px; padding: 10px; }
+.rec-rank-title { font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.rec-rank-item { display: flex; justify-content: space-between; font-size: 13px; color: #fff; padding: 5px 0; }
+.rec-rank-item.hot { color: #FFD36E; }
+.rec-interest { font-size: 12px; color: #FF5B7F; }
+
+/* 实验4 伦理 */
+.ethics-scene-card {
+  background: rgba(255,255,255,0.09);
+  border-radius: 14px;
+  padding: 14px;
   font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
+  color: #fff;
+  line-height: 1.8;
+  margin-bottom: 14px;
 }
-.lesson-btn.prev { background: rgba(255,255,255,0.15); color: #fff; }
-.lesson-btn.next { background: linear-gradient(90deg, #4A5CFF, #6C7CFF); color: #fff; }
-.lesson-btn.done { background: linear-gradient(90deg, #22B573, #2ECC71); color: #fff; }
+.ethics-options { display: flex; flex-direction: column; gap: 10px; }
+.ethics-opt {
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-size: 13.5px;
+  cursor: pointer;
+  text-align: left;
+}
+.ethics-opt:disabled { opacity: 0.6; }
+.ethics-opt.good { border-color: #2ECC71; background: rgba(46,204,113,0.2); }
+.ethics-opt.bad { border-color: #FF5B5B; background: rgba(255,91,91,0.2); }
+.ethics-feedback {
+  margin-top: 12px;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  display: none;
+}
+.ethics-feedback.good { background: rgba(46,204,113,0.2); color: #7EE2A5; }
+.ethics-feedback.bad { background: rgba(255,91,91,0.2); color: #FF9B9B; }
+
+/* 完成卡 */
+.lab-done-card { text-align: center; padding: 30px 10px; }
+.lab-done-title { font-size: 20px; font-weight: 900; color: #fff; margin: 12px 0; }
+.lab-done-text { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 2; margin-bottom: 20px; }
+.lab-done-text b { color: #FFD36E; }
