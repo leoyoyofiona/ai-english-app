@@ -247,6 +247,14 @@ const PlayerApp = (function () {
     });
 
     document.getElementById('actionSound').addEventListener('click', toggleSound);
+    document.getElementById('actionLesson').addEventListener('click', () => {
+      AiLesson.open();
+      videoEl.pause();
+    });
+    document.getElementById('lessonClose').addEventListener('click', () => {
+      AiLesson.close();
+      if (videoEl) videoEl.play().catch(() => {});
+    });
   }
 
   function togglePlay() {

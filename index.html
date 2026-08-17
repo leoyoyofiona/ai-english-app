@@ -35,6 +35,10 @@
       <div class="action-icon">🎯</div>
       <div class="action-label" id="actionTopic">主题</div>
     </div>
+    <div class="action-item" id="actionLesson">
+      <div class="action-icon">🧠</div>
+      <div class="action-label">AI小课堂</div>
+    </div>
     <div class="action-item" id="actionSound">
       <div class="action-icon">🔊</div>
       <div class="action-label">声音</div>
@@ -52,12 +56,19 @@
   </div>
 
   <div class="sound-tip" id="soundTip">🔊 点击开启声音</div>
+
+  <!-- AI小课堂 -->
+  <div class="lesson-overlay" id="lessonOverlay">
+    <div class="lesson-close" id="lessonClose">✕</div>
+    <div class="lesson-content" id="lessonContent"></div>
+  </div>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script src="js/content.js?v=2"></script>
 <script src="js/player.js?v=2"></script>
+<script src="js/ai_lesson.js?v=2"></script>
 <script src="js/app.js?v=2"></script>
 </body>
 </html>
