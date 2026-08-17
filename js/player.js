@@ -527,7 +527,7 @@ const PlayerApp = (function () {
       // 排除所有交互控件：筛选chip、操作栏、首页按钮、版本切换、地区切换、免责声明
       const excluded = ['.filter-chip', '.action-bar', '.home-btn', '.version-switch',
                         '.v-btn', '.disclaimer-btn', '.brand-row', '.top-bar',
-                        '.pause-icon', '.region-btn', '.region-overlay'];
+                        '.pause-icon', '.region-btn', '.refresh-btn', '.region-overlay'];
       if (excluded.some(sel => e.target.closest(sel))) return;
       togglePlay();
     });
@@ -694,6 +694,9 @@ const PlayerApp = (function () {
         ? tag + 'B站·抖音搬运工'
         : tag + '油管搬运工';
     }
+    // 刷新按钮只在V2模式显示
+    const rBtn = document.getElementById('refreshBtn');
+    if (rBtn) rBtn.style.display = currentVersion === 'v2' ? 'flex' : 'none';
     const brand = document.querySelector('.app-name');
     if (brand) {
       if (currentVersion === 'v1') {
@@ -710,6 +713,10 @@ const PlayerApp = (function () {
   function bindVersionSwitch() {
     document.getElementById('btnV1').addEventListener('click', () => switchVersion('v1'));
     document.getElementById('btnV2').addEventListener('click', () => switchVersion('v2'));
+    // 刷新按钮（仅V2）：打乱推荐
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      if (currentVersion === 'v2') refreshV2();
+    });
   }
 
   function switchVersion(v) {

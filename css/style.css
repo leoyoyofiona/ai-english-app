@@ -983,6 +983,21 @@ html, body {
   cursor: pointer;
   pointer-events: auto;
 }
+/* ctrl-row 里的刷新按钮（V2模式显示） */
+.refresh-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.3s ease;
+}
+.refresh-btn:active { transform: rotate(180deg) scale(0.9); }
 
 /* ============ V2 下拉刷新提示 ============ */
 .refresh-hint {
