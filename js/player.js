@@ -134,7 +134,13 @@ const PlayerApp = (function () {
           if (embedDiv && !embedDiv.querySelector('iframe')) {
             const url = embedUrl(clip);
             const ar = clip.platform === 'douyin' ? '9/16' : '16/9';
-            embedDiv.innerHTML = `<iframe src="${url}" data-ar="${ar}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe><div class="swipe-layer"></div>`;
+            // 上下边缘滑动层 + 中间穿透（用户可点击播放器自身按钮播放）
+            embedDiv.innerHTML = `
+              <iframe src="${url}" data-ar="${ar}" frameborder="0" allowfullscreen referrerpolicy="unsafe-url" allow="autoplay; encrypted-media"></iframe>
+              <div class="swipe-pass"></div>
+              <div class="swipe-layer swipe-top"></div>
+              <div class="swipe-layer swipe-bottom"></div>
+              <div class="embed-hint" id="hint_${clip.id}">👆 点击视频播放 · 上下边缘滑动切换</div>`;
             const frame = embedDiv.querySelector('iframe');
             embedPlaying = true;
             // iframe加载后再次尝试触发播放（autoplay参数被浏览器拦截时兜底；抖音靠autoplay参数，不重载）
@@ -145,6 +151,11 @@ const PlayerApp = (function () {
                 }
               }, 400);
             });
+            // 提示条3秒后淡出
+            const hint = embedDiv.querySelector('.embed-hint');
+            if (hint) {
+              setTimeout(() => { hint.style.opacity = '0'; }, 3500);
+            }
           }
         } else if (embedDiv) {
           embedDiv.innerHTML = '';

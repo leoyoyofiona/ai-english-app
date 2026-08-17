@@ -828,15 +828,50 @@ html, body {
   display: inline-block;
 }
 
-/* ============ iframe滑动捕获层 ============ */
+/* ============ iframe滑动捕获层 ============
+ * 上下边缘捕获滑动（上滑/下滑切视频）；
+ * 中间区域穿透给播放器，让用户能直接点击播放器自身的播放按钮
+ * （浏览器会拦截跨域iframe的带声音autoplay，点击播放器按钮是最可靠的播放方式） */
 .swipe-layer {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
   z-index: 5;
   background: transparent;
   touch-action: none;          /* 让滑动事件冒泡给容器 */
   pointer-events: auto;
   cursor: pointer;
+}
+.swipe-top {
+  top: 0; left: 0; right: 0;
+  height: 25%;
+}
+.swipe-bottom {
+  bottom: 0; left: 0; right: 0;
+  height: 20%;
+}
+/* 中间区域完全不拦截，点击穿透到 iframe 播放器 */
+.swipe-pass {
+  position: absolute;
+  top: 25%; bottom: 20%; left: 0; right: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+/* 播放提示（穿透区下方的小提示条） */
+.embed-hint {
+  position: absolute;
+  bottom: 21%;
+  left: 0; right: 0;
+  z-index: 6;
+  text-align: center;
+  pointer-events: none;
+  font-size: 12px;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.35);
+  padding: 4px 12px;
+  border-radius: 14px;
+  margin: 0 auto;
+  width: fit-content;
+  transition: opacity 0.4s ease;
 }
 
 /* ============ 地区选择弹窗 ============ */
