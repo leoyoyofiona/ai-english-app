@@ -18,12 +18,13 @@ SEARCH_OPTS = {
     'extract_flat': True,
     'extractor_args': {'youtube': {'player_client': ['android']}},
 }
-# 直链：android client 取 mp4 直链
-STREAM_OPTS = {
-    'quiet': True,
-    'format': '18',  # 360p mp4 音画合一
-    'extractor_args': {'youtube': {'player_client': ['android']}},
-}
+# 直链：依次尝试多个客户端（数据中心IP可能被YouTube拦截，需fallback）
+STREAM_CLIENTS = [
+    {'player_client': ['android']},
+    {'player_client': ['default']},
+    {'player_client': ['tv']},
+    {'player_client': ['web_embedded']},
+]
 
 # 直链缓存：videoId -> {url, ts}（YouTube 直链约6小时有效，缓存30分钟）
 stream_cache = {}
@@ -81,12 +82,23 @@ def yt_stream():
         cached = stream_cache.get(vid)
         if cached and now - cached['ts'] < CACHE_TTL:
             return jsonify({'url': cached['url']})
-    try:
-        with yt_dlp.YoutubeDL(STREAM_OPTS) as ydl:
-            info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=False)
-        url = info.get('url')
-        if not url:
-            return jsonify({'error': 'no direct url'}), 502
+    last_err = 'no direct url'
+    for client in STREAM_CLIENTS:
+        try:
+            opts = dict(client)
+            opts['quiet'] = True
+            opts['format'] = '18/22/best'
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=False)
+            url = info.get('url')
+            if url:
+                break
+            last_err = 'no direct url'
+        except Exception as ex:
+            last_err = str(ex)[:150]
+            url = None
+    if not url:
+        return jsonify({'error': f'failed: {last_err}'}), 502
         with lock:
             stream_cache[vid] = {'url': url, 'ts': now}
             # 简单防膨胀
