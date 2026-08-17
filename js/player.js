@@ -245,8 +245,9 @@ const PlayerApp = (function () {
             embedPlaying = true;
             // 按真实方向精确适配尺寸（不拉伸）
             fitEmbed(embedDiv, ar);
-            // iframe加载后再次尝试触发播放（autoplay参数被浏览器拦截时兜底；抖音靠autoplay参数，不重载）
+            // iframe加载后：重算尺寸（布局就绪）并再次尝试触发播放
             frame.addEventListener('load', () => {
+              fitEmbed(embedDiv, ar);
               setTimeout(() => {
                 if (clip.platform === 'bilibili' || clip.platform === 'youtube') {
                   sendEmbedCommand(frame, 'play');

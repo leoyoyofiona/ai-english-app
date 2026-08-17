@@ -847,7 +847,11 @@ html, body {
   border: none;
   background: #000;
   display: block;
-  /* 宽高由 JS fitEmbed() 按视频真实方向(9:16/16:9)精确计算，避免拉伸变形 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* 宽高由 JS fitEmbed() 按视频真实方向(9:16/16:9)精确计算 */
 }
 .card-source {
   font-size: 12px;
@@ -970,30 +974,46 @@ html, body {
   font-size: 12px;
   color: #999;
 }
-/* ctrl-row 里的地区切换小按钮 */
+/* 地区切换按钮（左下角大按钮） */
 .region-btn {
-  width: 30px; height: 30px;
+  position: fixed;
+  left: 14px;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  width: 46px; height: 46px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #fff;
-  font-size: 15px;
+  font-size: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  z-index: 24;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
   pointer-events: auto;
+  transition: transform 0.12s ease;
 }
-/* ctrl-row 里的刷新按钮（V2模式显示） */
+.region-btn:active { transform: scale(0.9); }
+/* 刷新按钮（右下角大按钮，V2模式显示） */
 .refresh-btn {
-  width: 30px; height: 30px;
+  position: fixed;
+  right: 14px;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  width: 46px; height: 46px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #fff;
-  font-size: 15px;
+  font-size: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  z-index: 24;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
   pointer-events: auto;
   transition: transform 0.3s ease;
 }
