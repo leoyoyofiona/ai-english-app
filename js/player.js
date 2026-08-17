@@ -94,8 +94,8 @@ const PlayerApp = (function () {
     const sentence = getCurrentSentence(currentClip, t);
 
     if (currentPhase === 0) {
-      // 第一遍盲听：显示中文提示（小字），帮助理解但不干扰听
-      sub.innerHTML = sentence ? `<span class="kara-zh-only">${escapeHtml(sentence.zh)}</span>` : '';
+      // 第一遍：完全无字幕，纯听
+      sub.innerHTML = '';
       return;
     }
 
@@ -119,10 +119,20 @@ const PlayerApp = (function () {
     }).join(' ');
 
     if (currentPhase === 1) {
+      // 第二遍：英文卡拉OK逐词跟随
       sub.innerHTML = enHtml;
     } else {
-      // 第三遍：英文卡拉OK + 中文翻译
-      sub.innerHTML = enHtml + `<div class="kara-zh">${escapeHtml(sentence.zh)}</div>`;
+      // 第三遍：中英文对照一起跟随口语
+      // 中文按字符分段，与英文同进度卡拉OK高亮
+      const zhChars = Array.from(sentence.zh.replace(/\s/g, ''));
+      const zhActiveIdx = Math.min(zhChars.length - 1, Math.floor(progress * zhChars.length));
+      let zhHtml = zhChars.map((ch, i) => {
+        let cls = 'kara-zh-char';
+        if (i < zhActiveIdx) cls += ' done';
+        else if (i === zhActiveIdx) cls += ' active';
+        return `<span class="${cls}">${escapeHtml(ch)}</span>`;
+      }).join('');
+      sub.innerHTML = `<div class="kara-en-line">${enHtml}</div><div class="kara-zh-line">${zhHtml}</div>`;
     }
   }
 

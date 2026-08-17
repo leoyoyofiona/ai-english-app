@@ -504,16 +504,27 @@ html, body {
   transform: scale(1.08);
   font-weight: 800;
 }
-.kara-zh {
-  margin-top: 4px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.85);
-  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
-  border-top: 1px solid rgba(255,255,255,0.15);
-  padding-top: 6px;
+.kara-en-line {
+  margin-bottom: 2px;
 }
-.kara-zh-only {
-  font-size: 14px;
-  color: rgba(255,255,255,0.7);
-  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+.kara-zh-line {
+  font-size: 16px;
+  margin-top: 2px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 4px;
+  line-height: 1.9;
+}
+/* 中文卡拉OK字符 */
+.kara-zh-char {
+  color: rgba(255,255,255,0.3);
+  transition: color 0.12s ease, text-shadow 0.12s ease;
+}
+.kara-zh-char.done {
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+}
+.kara-zh-char.active {
+  color: #FFD36E;
+  text-shadow: 0 0 12px rgba(255,211,110,0.8), 0 1px 4px rgba(0,0,0,0.9);
+  font-weight: 800;
 }
