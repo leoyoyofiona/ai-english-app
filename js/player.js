@@ -30,11 +30,24 @@ const PlayerApp = (function () {
       const card = document.createElement('div');
       card.className = 'video-card' + (i === 0 ? ' active' : '');
       card.dataset.index = i;
-      card.innerHTML = `
+      if (c.type === 'embed') {
+        // 平台视频：嵌入播放器
+        const embedUrl = c.platform === 'bilibili'
+          ? `https://player.bilibili.com/player.html?bvid=${c.bvid}&page=1&high_quality=1&danmaku=0`
+          : `https://www.youtube.com/embed/${c.videoId}?autoplay=1&rel=0`;
+        card.innerHTML = `
+          <div class="feed-embed" data-id="${c.id}"></div>
+          <div class="card-overlay">
+            <div class="card-source">${c.source}</div>
+            <div class="card-subtitle" id="sub_${c.id}"></div>
+          </div>`;
+      } else {
+        card.innerHTML = `
         <video class="feed-video" playsinline loop preload="${i < 2 ? 'auto' : 'none'}" src="${c.video}"></video>
         <div class="card-overlay">
           <div class="card-subtitle" id="sub_${c.id}"></div>
         </div>`;
+      }
       feed.appendChild(card);
     });
     bindCards();
@@ -43,6 +56,7 @@ const PlayerApp = (function () {
   function bindCards() {
     document.querySelectorAll('.video-card').forEach(card => {
       const video = card.querySelector('video');
+      if (!video) return; // 平台视频卡片无video，跳过
       video.addEventListener('ended', () => {
         if (card.classList.contains('active')) {
           if (!autoPaused) advancePhase();
@@ -67,16 +81,48 @@ const PlayerApp = (function () {
 
     document.querySelectorAll('.video-card').forEach((card, i) => {
       card.classList.toggle('active', i === index);
+      const clip = clips[i];
       const v = card.querySelector('video');
-      if (i === index) {
-        v.src = clips[index].video;
-        v.load();
-      } else {
-        v.pause();
-        v.removeAttribute('src');
-        v.load();
+      if (clip && clip.type === 'embed') {
+        // 平台视频：激活时加载iframe，非激活时清空
+        const embedDiv = card.querySelector('.feed-embed');
+        if (i === index) {
+          if (embedDiv && !embedDiv.querySelector('iframe')) {
+            const url = clip.platform === 'bilibili'
+              ? `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0`
+              : `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0`;
+            embedDiv.innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+          }
+        } else if (embedDiv) {
+          embedDiv.innerHTML = '';
+        }
+      }
+      if (v) {
+        if (i === index && !(clip && clip.type === 'embed')) {
+          v.src = clip.video;
+          v.load();
+        } else if (v) {
+          v.pause();
+          v.removeAttribute('src');
+          v.load();
+        }
       }
     });
+
+    const activeClip = clips[index];
+    if (activeClip && activeClip.type === 'embed') {
+      videoEl = null;
+      updateOverlay();
+      // 平台视频没有逐句字幕，显示提示
+      const sub = document.getElementById('sub_' + activeClip.id);
+      if (sub) {
+        sub.textContent = '🎬 正在播放平台视频 · 点按全屏观看';
+        sub.className = 'card-subtitle phase-0';
+      }
+      document.getElementById('phaseLabel').textContent = '平台视频';
+      document.querySelectorAll('.phase-dot').forEach(d => d.classList.remove('active'));
+      return;
+    }
 
     videoEl = document.querySelector('.video-card.active video');
     updateOverlay();

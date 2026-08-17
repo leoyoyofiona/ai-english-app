@@ -730,3 +730,24 @@ html, body {
 }
 .home-card-stars { font-size: 11px; color: #FFB84D; }
 .home-card-stars .stars-dim { color: #dde3f0; }
+
+/* ============ 平台视频嵌入 ============ */
+.feed-embed {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  background: #000;
+}
+.feed-embed iframe {
+  width: 100%; height: 100%;
+  border: none;
+}
+.card-source {
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  margin-bottom: 8px;
+  background: rgba(0,0,0,0.4);
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-block;
+}

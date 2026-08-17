@@ -1,8 +1,3 @@
-/* ============ content.js · 内容库 ============
- * 素材：shadowtalk 英语课程（用户购买的正版内容）
- * 每条含逐句字幕时间轴（sentences）：播放时按时间显示当前句
- */
-
 const CLIPS = [
   {
     id: 'v1_a', title: '酒店入住', stars: 1, topic: 'travel',
@@ -258,18 +253,50 @@ const CLIPS = [
       { start: 22.7, end: 23.5, en: 'Let\'s go.', zh: '走吧。' },
     ]
   },
-];
+
+  /* ===== 平台视频（B站/YouTube嵌入，实时更新） ===== */
+  {
+    id: 'bili-1', title: '3000个场景英语口语', stars: 2, topic: 'daily', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1WKGc63EVs',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_a.jpg',
+    sentences: [],
+    source: 'B站 · 大海英语看世界'
+  },
+  {
+    id: 'bili-2', title: '零基础旅行英语', stars: 1, topic: 'travel', type: 'embed',
+    platform: 'bilibili', bvid: 'BV1yqTr6CEVJ',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_b.jpg',
+    sentences: [],
+    source: 'B站 · 英语学习'
+  },
+  {
+    id: 'yt-1', title: 'Learn English Vlog - What I Eat', stars: 3, topic: 'daily', type: 'embed',
+    platform: 'youtube', videoId: 'RVzIGNFyvYU',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_a.jpg',
+    sentences: [],
+    source: 'YouTube · English Vlog'
+  },
+  {
+    id: 'yt-2', title: 'English Listening - Melbourne Market', stars: 3, topic: 'life', type: 'embed',
+    platform: 'youtube', videoId: 'mGmI9kGA_fA',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_a.jpg',
+    sentences: [],
+    source: 'YouTube · Slow English'
+  }
+]
 
 const TOPICS = [
-  { id: 'travel', name: '旅行', emoji: '✈️' },
-  { id: 'life', name: '生活感悟', emoji: '🌱' },
-  { id: 'nature', name: '自然', emoji: '🌿' },
   { id: 'daily', name: '日常', emoji: '☕' },
+  { id: 'travel', name: '旅行', emoji: '✈️' },
+  { id: 'life', name: '生活', emoji: '🌱' },
+  { id: 'nature', name: '自然', emoji: '🌿' },
+  { id: 'social', name: '社交', emoji: '🤝' },
+  { id: 'school', name: '校园', emoji: '📚' },
+  { id: 'food', name: '美食', emoji: '🍜' },
   { id: 'speech', name: '演讲', emoji: '🎤' },
   { id: 'work', name: '职场', emoji: '💼' },
-  { id: 'food', name: '美食', emoji: '🍜' },
-  { id: 'news', name: '新闻', emoji: '📰' },
   { id: 'psych', name: '心理', emoji: '🧠' },
+  { id: 'news', name: '新闻', emoji: '📰' }
 ];
 
 const STAR_LEVELS = [
@@ -277,14 +304,14 @@ const STAR_LEVELS = [
   { stars: 2, name: '初级' },
   { stars: 3, name: '进阶' },
   { stars: 4, name: '高级' },
-  { stars: 5, name: '挑战' },
+  { stars: 5, name: '挑战' }
 ];
 
 function getClip(id) { return CLIPS.find(c => c.id === id) || null; }
 function getClipsByStars(stars) { return stars ? CLIPS.filter(c => c.stars === stars) : CLIPS; }
 function getClipsByTopic(topic) { return topic ? CLIPS.filter(c => c.topic === topic) : CLIPS; }
 
-/* 根据播放时间找当前句子 */
+/* 根据播放时间找当前句子（平台视频无句子时返回null） */
 function getCurrentSentence(clip, time) {
   const sents = clip.sentences || [];
   for (let i = 0; i < sents.length; i++) {
@@ -293,7 +320,7 @@ function getCurrentSentence(clip, time) {
   return null;
 }
 
-/* 三段递进字幕（逐句） */
+/* 三段递进字幕 */
 function buildPhases(clip) {
   return [
     { key: 'listen', label: '第一遍 · 听', subtitle: '' },
