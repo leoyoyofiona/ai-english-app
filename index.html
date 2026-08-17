@@ -18,7 +18,10 @@
 
   <!-- 顶部栏 -->
   <div class="top-bar">
-    <div class="app-brand">LEO</div>
+    <div class="brand-row">
+      <div class="app-brand">LEO</div>
+      <div class="disclaimer-btn" id="disclaimerBtn">ⓘ</div>
+    </div>
     <div class="filter-row" id="filterRow">
       <button class="filter-chip active" data-filter="all">全部</button>
       <!-- 星级/主题筛选由JS注入 -->
@@ -34,6 +37,28 @@
       <div class="phase-dot"></div>
     </div>
     <div class="phase-label" id="phaseLabel">第一遍 · 听</div>
+  </div>
+
+  <!-- 免责声明弹窗 -->
+  <div class="disclaimer-overlay" id="disclaimerOverlay">
+    <div class="disclaimer-modal">
+      <div class="disclaimer-title">📜 免责声明</div>
+      <div class="disclaimer-body" id="disclaimerBody">
+        <p><b>1. 内容版权</b><br>
+        本应用中的视频、音频及文字内容来自第三方英语学习平台（shadowtalk），
+        素材版权归原作者/平台所有。本应用仅用于学习交流，不用于任何商业用途。</p>
+        <p><b>2. 使用说明</b><br>
+        本应用为学习辅助工具，视频内容仅代表作者个人观点，
+        请结合正规教材与课堂学习使用。</p>
+        <p><b>3. 隐私保护</b><br>
+        本应用不收集、不上传任何个人隐私信息，所有学习记录仅保存在本机。</p>
+        <p><b>4. 网络与设备</b><br>
+        本应用需要网络加载视频内容，请在网络环境良好的情况下使用。</p>
+        <p><b>5. 最终解释权</b><br>
+        本应用最终解释权归开发者所有。</p>
+      </div>
+      <button class="disclaimer-ok" id="disclaimerOk">我已知晓</button>
+    </div>
   </div>
 
 </main>

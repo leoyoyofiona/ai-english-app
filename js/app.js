@@ -8,6 +8,24 @@ function showToast(msg) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 免责声明
+  const overlay = document.getElementById('disclaimerOverlay');
+  const openBtn = document.getElementById('disclaimerBtn');
+  const okBtn = document.getElementById('disclaimerOk');
+
+  // 首次进入自动弹出免责声明
+  let seen = false;
+  try { seen = localStorage.getItem('leo_disclaimer_seen') === '1'; } catch(e) {}
+  if (!seen) {
+    setTimeout(() => { overlay.style.display = 'flex'; }, 800);
+  }
+
+  openBtn.addEventListener('click', () => { overlay.style.display = 'flex'; });
+  okBtn.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    try { localStorage.setItem('leo_disclaimer_seen', '1'); } catch(e) {}
+  });
+
   PlayerApp.init();
   PlayerApp.start();
 });
