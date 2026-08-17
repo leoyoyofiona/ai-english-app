@@ -36,8 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try { localStorage.setItem('leo_region', r); } catch(e) {}
   }
 
-  // 模式：首次进入=start（选完再启动应用）；已选过=switch（即时切换）
-  let mode = getRegion() ? 'switch' : 'start';
+  // 启动保护：首次进入=start（选完再启动应用）；已选过=switch（即时切换）
+  // booted 防止 DOMContentLoaded 被触发多次时重复启动
+  let booted = false;
+
+  function boot(r) {
+    if (booted) return;
+    booted = true;
+    PlayerApp.init();
+    PlayerApp.start(r);
+  }
 
   function bindRegionButtons(cb) {
     document.getElementById('regionDomestic').addEventListener('click', () => cb('domestic'));
@@ -47,22 +55,19 @@ document.addEventListener('DOMContentLoaded', () => {
   bindRegionButtons((r) => {
     setRegionStore(r);
     regionOverlay.style.display = 'none';
-    if (mode === 'start') {
-      PlayerApp.init();
-      PlayerApp.start(r);
-      mode = 'switch';
+    if (!booted) {
+      boot(r);
     } else {
       PlayerApp.setRegion(r);
     }
   });
 
-  if (mode === 'start') {
+  const region = getRegion();
+  if (region) {
+    boot(region);
+  } else {
     // 首次进入：先选地区再启动
     regionOverlay.style.display = 'flex';
-  } else {
-    // 已选过地区：直接启动
-    PlayerApp.init();
-    PlayerApp.start(getRegion());
   }
 
   // 顶栏 🌏 按钮：随时重新选择地区

@@ -18,6 +18,70 @@ const PlayerApp = (function () {
   let currentVersion = 'v1'; // v1=精选下载三遍听力 | v2=在线平台搬运
   let currentRegion = 'domestic'; // domestic=国内(B站/抖音) | overseas=国外(油管)
   let embedPlaying = false; // 平台嵌入视频播放状态（粗略跟踪）
+  let booted = false; // 防止 start() 重复执行
+
+  // ============ V1 学习进度（本地记录，无需账号） ============
+  const PROGRESS_KEY = 'leo_v1_progress';
+  let progressData = null;
+  let lastSaveAt = 0;
+
+  function loadProgress() {
+    if (progressData) return progressData;
+    try {
+      const raw = localStorage.getItem(PROGRESS_KEY);
+      progressData = raw ? JSON.parse(raw) : { last: null, clips: {} };
+    } catch (e) { progressData = { last: null, clips: {} }; }
+    return progressData;
+  }
+  function saveProgress() {
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressData)); } catch (e) {}
+  }
+  /** 记录当前视频进度（节流5秒；force=关键节点立即保存） */
+  function recordProgress(force) {
+    if (!currentClip || currentClip.type === 'embed' || !videoEl) return;
+    const now = Date.now();
+    if (!force && now - lastSaveAt < 5000) return;
+    lastSaveAt = now;
+    const t = videoEl.currentTime || 0;
+    const dur = videoEl.duration || 0;
+    const done = currentPhase >= 2 && dur > 0 && t >= dur - 0.8;
+    const p = loadProgress();
+    const prev = p.clips[currentClip.id] || {};
+    p.clips[currentClip.id] = { time: Math.round(t), phase: currentPhase, done: done || !!prev.done };
+    p.last = { id: currentClip.id, time: Math.round(t), phase: currentPhase };
+    saveProgress();
+  }
+  /** 标记某视频三遍学完 */
+  function markDone(id) {
+    const p = loadProgress();
+    if (p.clips[id]) p.clips[id].done = true;
+    else p.clips[id] = { time: 0, phase: 2, done: true };
+    saveProgress();
+    const badge = document.getElementById('done_' + id);
+    if (badge) badge.style.display = 'inline-block';
+  }
+
+  /** Fisher-Yates 洗牌（V2推荐打乱） */
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  /** V2 小红书式下拉刷新：打乱推荐顺序并回到第一条 */
+  function refreshV2() {
+    const hint = document.getElementById('refreshHint');
+    if (hint) hint.classList.add('show');
+    setTimeout(() => {
+      shuffleArray(clips);
+      renderFeed();
+      activate(0);
+      if (hint) hint.classList.remove('show');
+      showToast('✨ 已刷新推荐');
+    }, 700);
+  }
 
   /** 平台嵌入播放器地址 */
   function embedUrl(clip) {
@@ -64,6 +128,9 @@ const PlayerApp = (function () {
   function init() {
     bindGlobalEvents();
     renderFilters();
+    // 关闭/切后台时保存进度
+    window.addEventListener('pagehide', () => recordProgress(true));
+    window.addEventListener('beforeunload', () => recordProgress(true));
   }
 
   /** 渲染视频卡片 */
@@ -86,11 +153,14 @@ const PlayerApp = (function () {
             <div class="card-subtitle" id="sub_${c.id}"></div>
           </div>`;
       } else {
+        const prog = loadProgress();
+        const done = !!(prog.clips[c.id] && prog.clips[c.id].done);
         card.innerHTML = `
         <video class="feed-video" playsinline loop preload="${i < 2 ? 'auto' : 'none'}" src="${c.video}"></video>
         <div class="card-overlay">
           <div class="card-subtitle" id="sub_${c.id}"></div>
-        </div>`;
+        </div>
+        <div class="card-done" id="done_${c.id}" style="${done ? '' : 'display:none'}">✅ 已学完</div>`;
       }
       feed.appendChild(card);
     });
@@ -109,9 +179,13 @@ const PlayerApp = (function () {
       video.addEventListener('play', () => { hidePauseIcon(); });
       video.addEventListener('pause', () => {
         if (card.classList.contains('active') && videoEl && videoEl.currentTime > 0.5) showPauseIcon();
+        if (card.classList.contains('active')) recordProgress(true);
       });
       video.addEventListener('timeupdate', () => {
-        if (card.classList.contains('active')) updateSentenceSubtitle();
+        if (card.classList.contains('active')) {
+          updateSentenceSubtitle();
+          recordProgress();
+        }
       });
     });
   }
@@ -119,6 +193,8 @@ const PlayerApp = (function () {
   /** 激活指定索引的卡片并播放 */
   function activate(index) {
     if (index < 0 || index >= clips.length) return;
+    // 保存离开前一个视频的进度
+    if (videoEl && currentClip && currentClip.type !== 'embed') recordProgress(true);
     currentIndex = index;
     currentClip = clips[index];
     currentPhase = 0;
@@ -294,6 +370,8 @@ const PlayerApp = (function () {
     if (currentPhase < 2) {
       playPhase(currentPhase + 1);
     } else {
+      // 三遍听完 = 学完
+      if (currentClip && currentClip.type !== 'embed') markDone(currentClip.id);
       if (currentIndex < clips.length - 1) {
         activate(currentIndex + 1);
       } else {
@@ -318,23 +396,27 @@ const PlayerApp = (function () {
     }
     if (currentPhase < 2) {
       playPhase(currentPhase + 1);
-    } else if (currentIndex < clips.length - 1) {
-      activate(currentIndex + 1);
     } else {
-      showToast('已经是最后一个啦');
+      // 三遍听完 = 学完（上滑切下一条时也算听完）
+      if (currentClip && currentClip.type !== 'embed') markDone(currentClip.id);
+      if (currentIndex < clips.length - 1) {
+        activate(currentIndex + 1);
+      } else {
+        showToast('已经是最后一个啦');
+      }
     }
   }
 
-  /** 下滑：回看 */
+  /** 下滑：回看 / 第一个视频时下拉=刷新推荐（小红书式） */
   function swipeDown() {
     autoPaused = false;
     const cur = clips[currentIndex];
     if (cur && cur.type === 'embed') {
-      // 平台视频：直接切上一条
+      // 平台视频：直接切上一条；已是第一个则下拉刷新
       if (currentIndex > 0) {
         activate(currentIndex - 1);
       } else {
-        showToast('已经是第一个啦');
+        refreshV2();
       }
       return;
     }
@@ -490,8 +572,10 @@ const PlayerApp = (function () {
   }
 
 
-  /** 启动 */
+  /** 启动（防重入：DOMContentLoaded可能被触发多次） */
   function start(region) {
+    if (booted) return;
+    booted = true;
     currentRegion = region || 'domestic';
     bindVersionSwitch();
     // 默认V1：只加载自有视频
@@ -504,6 +588,47 @@ const PlayerApp = (function () {
     // 首页也按V1渲染
     renderHomeGrid('all');
     updateRegionUI();
+    // 续播上次学习进度
+    resumeLastProgress();
+  }
+
+  /** 从上次进度续播（进入应用时调用） */
+  function resumeLastProgress() {
+    const p = loadProgress();
+    if (!p.last) return;
+    const idx = clips.findIndex(c => c.id === p.last.id);
+    if (idx < 0) return;
+    const saved = p.clips[p.last.id] || { time: 0, phase: 0 };
+    activate(idx);
+    if (videoEl) {
+      const dur = (videoEl.duration && isFinite(videoEl.duration)) ? videoEl.duration : 0;
+      const target = Math.max(0, Math.min(saved.time || 0, dur > 0 ? dur - 0.5 : saved.time || 0));
+      resumeAt(Math.min(saved.phase || 0, 2), target);
+      showToast('📖 已续播上次进度');
+    }
+  }
+
+  /** 在指定时间点恢复播放（保留遍数与阶段计时） */
+  function resumeAt(phase, time) {
+    clearTimeout(phaseTimer);
+    currentPhase = phase;
+    const phases = buildPhases(currentClip);
+    const sub = document.getElementById('sub_' + currentClip.id);
+    sub.className = 'card-subtitle phase-' + phase;
+    updateSentenceSubtitle();
+    document.getElementById('phaseLabel').textContent = phases[phase].label;
+    document.querySelectorAll('.phase-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === phase);
+    });
+    videoEl.muted = false;
+    videoEl.currentTime = time;
+    const p = videoEl.play();
+    if (p) p.catch(() => {});
+    startKaraokeLoop();
+    const dur = (videoEl.duration && isFinite(videoEl.duration)) ? videoEl.duration : 20;
+    phaseTimer = setTimeout(() => {
+      if (!autoPaused && !videoEl.paused) advancePhase();
+    }, ((dur - time) + 0.3) * 1000);
   }
 
   /** 切换地区（国内/国外），影响V2内容与按钮文案 */
@@ -517,6 +642,7 @@ const PlayerApp = (function () {
     if (currentVersion === 'v2') {
       clips = CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
       if (clips.length === 0) clips = CLIPS.filter(c => c.type === 'embed');
+      shuffleArray(clips); // 换地区重新打乱推荐
       renderFeed();
       activate(0);
     }
@@ -562,6 +688,7 @@ const PlayerApp = (function () {
       clips = CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
     }
     if (clips.length === 0) clips = CLIPS.filter(c => c.type === 'embed');
+    if (v === 'v2') shuffleArray(clips); // 每次进入V2打乱推荐顺序
     renderFeed();
     activate(0);
     renderHomeGrid('all');
@@ -596,14 +723,19 @@ const PlayerApp = (function () {
       : CLIPS.filter(c => c.type === 'embed' && c.region === currentRegion);
     if (list.length === 0) list = CLIPS.filter(c => c.type === 'embed');
     if (topic !== 'all') list = list.filter(c => c.topic === topic);
-    grid.innerHTML = list.map((c, i) => `
+    const prog = loadProgress();
+    grid.innerHTML = list.map((c, i) => {
+      const hdone = !!(prog.clips[c.id] && prog.clips[c.id].done);
+      return `
       <div class="home-card" data-video="${c.id}">
         <div class="home-card-cover" style="background-image:url('${c.cover}')"></div>
+        ${hdone ? '<div class="home-card-badge">✅</div>' : ''}
         <div class="home-card-body">
           <div class="home-card-title">${c.title}</div>
           <div class="home-card-stars">${'★'.repeat(c.stars)}<span class="stars-dim">${'★'.repeat(5-c.stars)}</span></div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     grid.querySelectorAll('.home-card').forEach(card => {
       card.addEventListener('click', () => {
         const cid = card.dataset.video;
@@ -632,5 +764,5 @@ const PlayerApp = (function () {
     }
   }
 
-  return { init, start, setRegion, swipeUp, swipeDown, applyFilter, activate };
+  return { init, start, setRegion, refreshV2, swipeUp, swipeDown, applyFilter, activate };
 })();
