@@ -333,7 +333,10 @@ const PlayerApp = (function () {
     });
 
     container.addEventListener('click', (e) => {
-      if (e.target.closest('.filter-chip') || e.target.closest('.action-bar')) return;
+      // 排除所有交互控件：筛选chip、操作栏、首页按钮、版本切换、免责声明
+      const excluded = ['.filter-chip', '.action-bar', '.home-btn', '.version-switch',
+                        '.v-btn', '.disclaimer-btn', '.brand-row', '.top-bar'];
+      if (excluded.some(sel => e.target.closest(sel))) return;
       togglePlay();
     });
 
