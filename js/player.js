@@ -83,14 +83,10 @@ const PlayerApp = (function () {
     }, 700);
   }
 
-  /** 平台嵌入播放器地址 */
+  /** 平台嵌入播放器地址（B站已改为mp4直链<video>播放，不走iframe） */
   function embedUrl(clip) {
-    if (clip.platform === 'bilibili') {
-      // muted=1：浏览器拦截带声音自动播放，静音自动播最可靠；点击后解除
-      return `https://player.bilibili.com/player.html?bvid=${clip.bvid}&page=1&high_quality=1&danmaku=0&autoplay=1&muted=1`;
-    }
     if (clip.platform === 'youtube') {
-      return `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0&mute=1&enablejsapi=1`;
+      return `https://www.youtube.com/embed/${clip.videoId}?autoplay=1&rel=0&enablejsapi=1`;
     }
     if (clip.platform === 'tencent') {
       return `https://v.qq.com/txp/iframe/player.html?vid=${clip.vid}&autoplay=true`;
@@ -134,16 +130,12 @@ const PlayerApp = (function () {
           func: cmd === 'play' ? 'playVideo' : 'pauseVideo',
           args: []
         }), '*');
-      } else if (clip.platform === 'bilibili') {
-        // 兼容两种消息格式（官方API支持 postMessage 控制）
-        frame.contentWindow.postMessage({ type: cmd, data: {} }, '*');
-        frame.contentWindow.postMessage({ type: cmd }, '*');
       }
       // 腾讯视频无公开控制API：由播放器自身按钮控制
     } catch (e) { /* 跨域或无效时忽略 */ }
   }
 
-  /** 点击视频时尝试开启声音（浏览器首次自动播放强制静音，需用户交互后解除） */
+  /** 点击视频时尝试开启声音（腾讯/油管 iframe 用；B站直链直接 video.muted=false） */
   function sendEmbedUnmute(frame) {
     if (!frame || !frame.contentWindow) return;
     try {
@@ -151,11 +143,36 @@ const PlayerApp = (function () {
       if (!clip) return;
       if (clip.platform === 'youtube') {
         frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
-      } else if (clip.platform === 'bilibili') {
-        frame.contentWindow.postMessage({ type: 'mute', data: { muted: false } }, '*');
       }
       // 腾讯视频：点击提示用户操作播放器自身按钮
     } catch (e) { /* 忽略 */ }
+  }
+
+  // ============ B站 mp4 直链（<video> 播放，滑动手势内 play() 可带声音） ============
+  let biliUrls = {}; // clipId -> {url, ts}（直链约2小时过期，90分钟刷新）
+  /** 经服务器代理获取B站mp4直链（代理绕过防盗链+CORS；<video>无法伪造Referer） */
+  async function fetchBiliUrl(clip) {
+    const cached = biliUrls[clip.id];
+    if (cached && Date.now() - cached.ts < 90 * 60 * 1000) return cached.url;
+    try {
+      const r = await fetch(`/api/bili/x/player/playurl?bvid=${clip.bvid}&cid=${clip.cid}&qn=32&otype=json&fnver=0&fnval=1`);
+      const d = await r.json();
+      const url = d && d.data && d.data.durl && d.data.durl[0] && d.data.durl[0].url;
+      if (url) {
+        // 走本地代理（带B站Referer绕过防盗链），video 播放
+        const proxied = '/bili-mp4/?u=' + encodeURIComponent(url);
+        biliUrls[clip.id] = { url: proxied, ts: Date.now() };
+        return proxied;
+      }
+    } catch (e) { /* 代理/网络失败时静默，卡片显示poster */ }
+    return null;
+  }
+  /** 预取后续B站视频直链（保证滑动切换时直链已就绪 → 手势内play()带声音） */
+  async function preloadBiliUrls(fromIndex) {
+    for (let i = fromIndex; i < Math.min(fromIndex + 3, clips.length); i++) {
+      const c = clips[i];
+      if (c && c.platform === 'bilibili') await fetchBiliUrl(c);
+    }
   }
 
   // ============ 初始化 ============
@@ -175,11 +192,16 @@ const PlayerApp = (function () {
       const card = document.createElement('div');
       card.className = 'video-card' + (i === 0 ? ' active' : '');
       card.dataset.index = i;
-      if (c.type === 'embed') {
-        // 平台视频：嵌入播放器
-        const embedUrl = c.platform === 'bilibili'
-          ? `https://player.bilibili.com/player.html?bvid=${c.bvid}&page=1&high_quality=1&danmaku=0`
-          : `https://www.youtube.com/embed/${c.videoId}?autoplay=1&rel=0`;
+      if (c.type === 'embed' && c.platform === 'bilibili') {
+        // B站：mp4直链用 <video> 播放（滑动手势内 play() 可带声音自动播放）
+        card.innerHTML = `
+          <video class="feed-video" playsinline preload="none" poster="${c.cover}"></video>
+          <div class="card-overlay">
+            <div class="card-source">${c.source}</div>
+            <div class="card-subtitle" id="sub_${c.id}"></div>
+          </div>`;
+      } else if (c.type === 'embed') {
+        // 其他平台（腾讯/油管）：iframe 嵌入播放器
         card.innerHTML = `
           <div class="feed-embed" data-id="${c.id}"></div>
           <div class="card-overlay">
@@ -204,10 +226,17 @@ const PlayerApp = (function () {
   function bindCards() {
     document.querySelectorAll('.video-card').forEach(card => {
       const video = card.querySelector('video');
-      if (!video) return; // 平台视频卡片无video，跳过
+      if (!video) return; // 无video卡片（腾讯/油管iframe）跳过
       video.addEventListener('ended', () => {
         if (card.classList.contains('active')) {
-          if (!autoPaused) advancePhase();
+          const clip = clips[parseInt(card.dataset.index)];
+          if (clip && clip.type === 'embed' && clip.platform === 'bilibili') {
+            // B站直链：播完自动下一条（刷视频模式）
+            if (currentIndex < clips.length - 1) activate(currentIndex + 1);
+            else { autoPaused = true; document.getElementById('phaseLabel').textContent = '已播完 · 上滑继续'; }
+          } else if (!autoPaused) {
+            advancePhase();
+          }
         }
       });
       video.addEventListener('play', () => { hidePauseIcon(); });
@@ -237,8 +266,9 @@ const PlayerApp = (function () {
       card.classList.toggle('active', i === index);
       const clip = clips[i];
       const v = card.querySelector('video');
-      if (clip && clip.type === 'embed') {
-        // 平台视频：激活时加载iframe，非激活时清空
+      const isIframeEmbed = clip && clip.type === 'embed' && clip.platform !== 'bilibili';
+      if (isIframeEmbed) {
+        // 腾讯/油管：激活时加载iframe，非激活时清空
         const embedDiv = card.querySelector('.feed-embed');
         if (i === index) {
           if (embedDiv && !embedDiv.querySelector('iframe')) {
@@ -250,18 +280,16 @@ const PlayerApp = (function () {
               <div class="swipe-pass"></div>
               <div class="swipe-layer swipe-top"></div>
               <div class="swipe-layer swipe-bottom"></div>
-              <div class="embed-hint" id="hint_${clip.id}">🔊 已静音自动播放 · 点击开启声音</div>`;
+              <div class="embed-hint" id="hint_${clip.id}">👆 点击视频播放</div>`;
             const frame = embedDiv.querySelector('iframe');
             embedPlaying = true;
             // 按真实方向精确适配尺寸（不拉伸）
             fitEmbed(embedDiv, ar);
-            // iframe加载后：重算尺寸（布局就绪）并再次尝试触发播放
+            // iframe加载后：重算尺寸并再次尝试触发播放
             frame.addEventListener('load', () => {
               fitEmbed(embedDiv, ar);
               setTimeout(() => {
-                if (clip.platform === 'bilibili' || clip.platform === 'youtube') {
-                  sendEmbedCommand(frame, 'play');
-                }
+                if (clip.platform === 'youtube') sendEmbedCommand(frame, 'play');
               }, 400);
             });
             // 提示条3秒后淡出
@@ -275,9 +303,33 @@ const PlayerApp = (function () {
         }
       }
       if (v) {
-        if (i === index && !(clip && clip.type === 'embed')) {
-          v.src = clip.video;
-          v.load();
+        if (i === index && !isIframeEmbed) {
+          if (clip && clip.type === 'embed' && clip.platform === 'bilibili') {
+            // B站直链：缓存命中→手势内play()带声音；未命中→静音起播，直链到达后换源
+            videoEl = v;
+            const cached = biliUrls[clip.id] && biliUrls[clip.id].url;
+            if (cached) {
+              if (v.getAttribute('src') !== cached) { v.src = cached; v.load(); }
+              v.muted = false;
+              v.play().catch(() => {});
+            } else {
+              v.muted = true;
+              v.play().catch(() => {});
+              fetchBiliUrl(clip).then(u => {
+                if (u && currentClip && currentClip.id === clip.id && card.classList.contains('active')) {
+                  v.src = u;
+                  v.load();
+                  v.play().catch(() => {});
+                  v.muted = false;
+                }
+              });
+            }
+            preloadBiliUrls(index + 1);
+          } else {
+            // V1自有视频
+            v.src = clip.video;
+            v.load();
+          }
         } else if (v) {
           v.pause();
           v.removeAttribute('src');
@@ -287,10 +339,10 @@ const PlayerApp = (function () {
     });
 
     const activeClip = clips[index];
-    if (activeClip && activeClip.type === 'embed') {
+    if (activeClip && activeClip.type === 'embed' && activeClip.platform !== 'bilibili') {
+      // 腾讯/油管 iframe
       videoEl = null;
       updateOverlay();
-      // 平台视频没有逐句字幕，显示提示
       const sub = document.getElementById('sub_' + activeClip.id);
       if (sub) {
         sub.textContent = '🎬 正在播放平台视频 · 点按全屏观看';
@@ -298,6 +350,18 @@ const PlayerApp = (function () {
       }
       document.getElementById('phaseLabel').textContent = '平台视频';
       document.querySelectorAll('.phase-dot').forEach(d => d.classList.remove('active'));
+      return;
+    }
+    if (activeClip && activeClip.type === 'embed' && activeClip.platform === 'bilibili') {
+      // B站直链播放（videoEl已在遍历中设置）
+      updateOverlay();
+      document.getElementById('phaseLabel').textContent = 'B站视频';
+      document.querySelectorAll('.phase-dot').forEach(d => d.classList.remove('active'));
+      const sub = document.getElementById('sub_' + activeClip.id);
+      if (sub) {
+        sub.textContent = '🔊 自动播放 · 上下滑动切换';
+        sub.className = 'card-subtitle phase-0';
+      }
       return;
     }
 
@@ -575,8 +639,8 @@ const PlayerApp = (function () {
   }
 
   function togglePlay() {
-    // 平台嵌入视频：点击=尝试开启声音 + 播放/暂停
-    if (currentClip && currentClip.type === 'embed') {
+    // 腾讯/油管 iframe：点击=尝试开启声音 + 播放/暂停
+    if (currentClip && currentClip.type === 'embed' && currentClip.platform !== 'bilibili') {
       const frame = document.querySelector('.video-card.active .feed-embed iframe');
       if (!frame) return;
       sendEmbedUnmute(frame); // 解除静音（浏览器限制：首次自动播放只能静音）
@@ -591,7 +655,7 @@ const PlayerApp = (function () {
     }
     if (!videoEl) return;
     if (videoEl.paused) {
-      videoEl.muted = false;
+      videoEl.muted = false; // B站直链首次可能静音起播，点击即开声音
       const p = videoEl.play();
       if (p) p.catch(() => {});
       hidePauseIcon();
