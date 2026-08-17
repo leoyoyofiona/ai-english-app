@@ -78,22 +78,71 @@ const PlayerApp = (function () {
     videoEl = document.querySelector('.video-card.active video');
     updateOverlay();
     playPhase(0);
+    startKaraokeLoop();
   }
 
 
   /** 逐句字幕：根据播放时间显示当前句 */
+  let karaokeTimer = null;
+
+  /** 卡拉OK动态字幕：单词随语音节奏逐词高亮 */
   function updateSentenceSubtitle() {
     if (!currentClip || !videoEl) return;
     const sub = document.getElementById('sub_' + currentClip.id);
     if (!sub) return;
     const t = videoEl.currentTime || 0;
     const sentence = getCurrentSentence(currentClip, t);
+
     if (currentPhase === 0) {
-      sub.textContent = '';
-    } else if (currentPhase === 1) {
-      sub.textContent = sentence ? sentence.en : '';
+      // 第一遍盲听：显示中文提示（小字），帮助理解但不干扰听
+      sub.innerHTML = sentence ? `<span class="kara-zh-only">${escapeHtml(sentence.zh)}</span>` : '';
+      return;
+    }
+
+    if (!sentence) {
+      sub.innerHTML = '';
+      return;
+    }
+
+    // 计算当前进度（0~1），按词均分时间
+    const duration = Math.max(0.001, sentence.end - sentence.start);
+    const progress = Math.max(0, Math.min(1, (t - sentence.start) / duration));
+    const words = sentence.en.trim().split(/\s+/);
+    const activeIdx = Math.min(words.length - 1, Math.floor(progress * words.length));
+
+    // 渲染卡拉OK：已读词变亮，当前词金色高亮，未读词暗淡
+    let enHtml = words.map((w, i) => {
+      let cls = 'kara-word';
+      if (i < activeIdx) cls += ' done';
+      else if (i === activeIdx) cls += ' active';
+      return `<span class="${cls}">${escapeHtml(w)}</span>`;
+    }).join(' ');
+
+    if (currentPhase === 1) {
+      sub.innerHTML = enHtml;
     } else {
-      sub.textContent = sentence ? (sentence.en + '\n' + sentence.zh) : '';
+      // 第三遍：英文卡拉OK + 中文翻译
+      sub.innerHTML = enHtml + `<div class="kara-zh">${escapeHtml(sentence.zh)}</div>`;
+    }
+  }
+
+  function escapeHtml(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  /** 卡拉OK高频刷新（跟随语音节奏，更流畅） */
+  function startKaraokeLoop() {
+    stopKaraokeLoop();
+    karaokeTimer = setInterval(() => {
+      if (!videoEl || !document.querySelector('.video-card.active')) return;
+      // 跟随播放时间更新卡拉OK字幕（暂停时也保留最后状态）
+      updateSentenceSubtitle();
+    }, 60);
+  }
+  function stopKaraokeLoop() {
+    if (karaokeTimer) {
+      clearInterval(karaokeTimer);
+      karaokeTimer = null;
     }
   }
 
@@ -111,7 +160,6 @@ const PlayerApp = (function () {
 
     const sub = document.getElementById('sub_' + currentClip.id);
     sub.className = 'card-subtitle phase-' + phase;
-    // 逐句字幕：立即更新当前句
     updateSentenceSubtitle();
 
     document.getElementById('phaseLabel').textContent = phases[phase].label;
@@ -123,6 +171,7 @@ const PlayerApp = (function () {
     videoEl.currentTime = 0;
     const p = videoEl.play();
     if (p) p.catch(() => {});
+    startKaraokeLoop();
 
     const dur = (videoEl.duration && isFinite(videoEl.duration)) ? videoEl.duration : 20;
     phaseTimer = setTimeout(() => {

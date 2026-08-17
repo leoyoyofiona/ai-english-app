@@ -484,3 +484,36 @@ html, body {
 .lab-done-title { font-size: 20px; font-weight: 900; color: #fff; margin: 12px 0; }
 .lab-done-text { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 2; margin-bottom: 20px; }
 .lab-done-text b { color: #FFD36E; }
+
+/* ============ 卡拉OK动态字幕 ============ */
+.card-subtitle { line-height: 2; }
+
+.kara-word {
+  color: rgba(255,255,255,0.35);        /* 未读：暗淡 */
+  transition: color 0.12s ease, text-shadow 0.12s ease;
+  margin-right: 4px;
+  display: inline-block;
+}
+.kara-word.done {
+  color: rgba(255,255,255,0.95);        /* 已读：变亮 */
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+}
+.kara-word.active {
+  color: #FFD36E;                        /* 当前词：金色高亮 */
+  text-shadow: 0 0 12px rgba(255,211,110,0.8), 0 1px 4px rgba(0,0,0,0.9);
+  transform: scale(1.08);
+  font-weight: 800;
+}
+.kara-zh {
+  margin-top: 4px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 6px;
+}
+.kara-zh-only {
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+}
