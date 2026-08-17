@@ -7,6 +7,8 @@
 """
 import time
 import threading
+import json as json_mod
+import urllib.request
 import yt_dlp
 from flask import Flask, jsonify, request
 
@@ -18,13 +20,33 @@ SEARCH_OPTS = {
     'extract_flat': True,
     'extractor_args': {'youtube': {'player_client': ['android']}},
 }
-# 直链：依次尝试多个客户端（数据中心IP可能被YouTube拦截，需fallback）
-STREAM_CLIENTS = [
-    {'player_client': ['android']},
-    {'player_client': ['default']},
-    {'player_client': ['tv']},
-    {'player_client': ['web_embedded']},
-]
+# ===== PO Token（解决数据中心IP被YouTube反爬拦截） =====
+# provider：bgutil-ytdlp-pot-provider 本地HTTP服务（端口4416）
+pot_cache = {'token': None, 'ts': 0}
+
+
+def get_po_token():
+    try:
+        req = urllib.request.Request(
+            'http://127.0.0.1:4416/get_pot',
+            data=json_mod.dumps({'client': 'android.gvs'}).encode(),
+            headers={'Content-Type': 'application/json'},
+            method='POST')
+        d = json_mod.loads(urllib.request.urlopen(req, timeout=30).read().decode())
+        return d.get('poToken')
+    except Exception:
+        return None
+
+
+def cached_po_token():
+    now = time.time()
+    if pot_cache['token'] and now - pot_cache['ts'] < 30 * 60:
+        return pot_cache['token']
+    t = get_po_token()
+    if t:
+        pot_cache['token'] = t
+        pot_cache['ts'] = now
+    return t
 
 # 直链缓存：videoId -> {url, ts}（YouTube 直链约6小时有效，缓存30分钟）
 stream_cache = {}
@@ -82,31 +104,25 @@ def yt_stream():
         cached = stream_cache.get(vid)
         if cached and now - cached['ts'] < CACHE_TTL:
             return jsonify({'url': cached['url']})
-    last_err = 'no direct url'
-    for client in STREAM_CLIENTS:
-        try:
-            opts = dict(client)
-            opts['quiet'] = True
-            opts['format'] = '18/22/best'
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=False)
-            url = info.get('url')
-            if url:
-                break
-            last_err = 'no direct url'
-        except Exception as ex:
-            last_err = str(ex)[:150]
-            url = None
-    if not url:
-        return jsonify({'error': f'failed: {last_err}'}), 502
-        with lock:
-            stream_cache[vid] = {'url': url, 'ts': now}
-            # 简单防膨胀
-            if len(stream_cache) > 500:
-                stream_cache.clear()
-        return jsonify({'url': url})
+    pot = cached_po_token()
+    yt_args = {'player_client': ['android']}
+    if pot:
+        yt_args['po_token'] = [f'android.gvs+{pot}']
+    try:
+        opts = {'quiet': True, 'format': '18', 'extractor_args': {'youtube': yt_args}}
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=False)
+        url = info.get('url')
     except Exception as ex:
-        return jsonify({'error': str(ex)}), 502
+        return jsonify({'error': f'failed: {str(ex)[:150]}'}), 502
+    if not url:
+        return jsonify({'error': 'no direct url'}), 502
+    with lock:
+        stream_cache[vid] = {'url': url, 'ts': now}
+        # 简单防膨胀
+        if len(stream_cache) > 500:
+            stream_cache.clear()
+    return jsonify({'url': url})
 
 
 if __name__ == '__main__':
