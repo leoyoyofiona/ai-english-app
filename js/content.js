@@ -6,7 +6,8 @@
 const CLIPS = [
   {
     id: 'v1_a', title: '酒店入住', stars: 1, topic: 'travel',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v1_a.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v1_a.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_a.jpg',
     sentences: [
       { start: 0.0, end: 6.7, en: 'We\'ve just checked in, and now we need to go to our room, so let\'s take the lift.', zh: '我们刚办完入住，现在要去我们的房间，所以坐电梯吧。' },
       { start: 6.7, end: 16.1, en: 'This, guys, is a luggage trolley where you put your bags on.', zh: '各位，这是行李推车，可以放你的包。' },
@@ -17,7 +18,8 @@ const CLIPS = [
   },
   {
     id: 'v1_b', title: '乘电梯上楼', stars: 1, topic: 'travel',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v1_b.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v1_b.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_b.jpg',
     sentences: [
       { start: 0.4, end: 7.2, en: 'So right now we\'re on the ground floor, and I\'m taking the card and tapping it,', zh: '现在我们在一楼，我拿出房卡刷一下。' },
       { start: 7.2, end: 11.4, en: 'and pressing the number 21.', zh: '按下21层。' },
@@ -27,7 +29,8 @@ const CLIPS = [
   },
   {
     id: 'v1_c', title: '走进房间', stars: 1, topic: 'travel',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v1_c.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v1_c.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v1_c.jpg',
     sentences: [
       { start: 0.1, end: 9.2, en: 'We\'re on the 21st floor, and down here is a corridor, a corridor, and walking down the corridor.', zh: '我们到了21层，这边是走廊，沿着走廊走。' },
       { start: 9.3, end: 13.3, en: 'But our room is not down there, it\'s not down that corridor.', zh: '但我们的房间不在那边。' },
@@ -41,7 +44,8 @@ const CLIPS = [
   },
   {
     id: 'v2_a', title: '突然就30岁了', stars: 2, topic: 'life',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v2_a.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v2_a.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_a.jpg',
     sentences: [
       { start: 0.2, end: 2.2, en: 'Suddenly I\'m 30.', zh: '突然我就30岁了。' },
       { start: 2.2, end: 3.6, en: 'Free zero.', zh: '30岁！' },
@@ -61,7 +65,8 @@ const CLIPS = [
   },
   {
     id: 'v2_b', title: '该不该要孩子', stars: 2, topic: 'life',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v2_b.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v2_b.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_b.jpg',
     sentences: [
       { start: 0.3, end: 2.6, en: 'I don\'t know if I want to have kids.', zh: '我不知道自己是否想要孩子。' },
       { start: 2.6, end: 5.5, en: 'I know there\'s this biological clock, and I\'m a bit afraid of it.', zh: '我知道有生物钟这回事，我有点害怕。' },
@@ -77,7 +82,8 @@ const CLIPS = [
   },
   {
     id: 'v2_c', title: '社会时钟的压力', stars: 2, topic: 'life',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v2_c.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v2_c.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_c.jpg',
     sentences: [
       { start: 0.0, end: 4.1, en: 'society gives us, especially for women in our fairies.', zh: '社会给我们的时间表，尤其是对女性。' },
       { start: 4.1, end: 13.0, en: 'We have so much pressure to fit into this perfect role or to adapt to this timeline that society', zh: '我们压力很大，要符合这个完美的角色。' },
@@ -94,7 +100,8 @@ const CLIPS = [
   },
   {
     id: 'v2_d', title: '先爱自己', stars: 2, topic: 'life',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v2_d.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v2_d.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v2_d.jpg',
     sentences: [
       { start: 0.4, end: 6.1, en: 'And I think it\'s super cool if you don\'t have this time limit for anything in life.', zh: '我觉得人生没有时间限制真的很酷。' },
       { start: 6.1, end: 12.3, en: 'The only thing, yes, with kids, that is something we as women, we can\'t ignore.', zh: '唯一一件事，关于孩子，是我们女性无法忽视的。' },
@@ -115,7 +122,8 @@ const CLIPS = [
   },
   {
     id: 'v3_a', title: '石头村庄巴拉祖克', stars: 3, topic: 'travel',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v3_a.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v3_a.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_a.jpg',
     sentences: [
       { start: 0.0, end: 6.5, en: 'Here in Balazook, all of the houses are made of stone.', zh: '在巴拉祖克，所有的房子都是用石头建的。' },
       { start: 9.7, end: 14.3, en: 'All of the houses are made of stone.', zh: '这里的房子都是用石头建的。' },
@@ -128,7 +136,8 @@ const CLIPS = [
   },
   {
     id: 'v3_b', title: '栏杆和大门', stars: 3, topic: 'travel',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v3_b.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v3_b.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_b.jpg',
     sentences: [
       { start: -0.2, end: 6.1, en: 'You can see a railing, this is a railing,', zh: '你可以看到栏杆，这是栏杆。' },
       { start: 6.1, end: 8.2, en: 'and this is a gate.', zh: '这是大门。' },
@@ -143,7 +152,8 @@ const CLIPS = [
   },
   {
     id: 'v3_c', title: '古罗马教堂', stars: 3, topic: 'travel',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v3_c.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v3_c.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v3_c.jpg',
     sentences: [
       { start: 0.4, end: 5.0, en: 'Behind me here, this is one of the most famous sites', zh: '在我身后，是巴拉祖克最有名的景点之一。' },
       { start: 5.0, end: 7.5, en: 'that you can see in all of Balazook.', zh: '在巴拉祖克你能看到的所有景点里。' },
@@ -166,7 +176,8 @@ const CLIPS = [
   },
   {
     id: 'v4_a', title: '湖边漫步', stars: 4, topic: 'nature',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v4_a.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v4_a.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v4_a.jpg',
     sentences: [
       { start: 0.2, end: 3.6, en: 'Ooh, it\'s brisk out here.', zh: '哦，外面真冷。' },
       { start: 5.2, end: 6.5, en: 'Let\'s go to the lake.', zh: '我们去湖边吧。' },
@@ -184,7 +195,8 @@ const CLIPS = [
   },
   {
     id: 'v4_b', title: '鹅卵石与涟漪', stars: 4, topic: 'nature',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v4_b.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v4_b.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v4_b.jpg',
     sentences: [
       { start: 4.0, end: 5.1, en: 'This is called a pebble.', zh: '这叫鹅卵石。' },
       { start: 5.1, end: 7.5, en: 'A small rock like this is called a pebble.', zh: '像这样的小石头叫鹅卵石。' },
@@ -201,7 +213,8 @@ const CLIPS = [
   },
   {
     id: 'v4_c', title: '湖边的泡沫是什么', stars: 4, topic: 'nature',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v4_c.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v4_c.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v4_c.jpg',
     sentences: [
       { start: 0.8, end: 3.7, en: 'All this foam along the shoreline.', zh: '岸边全是这种泡沫。' },
       { start: 3.7, end: 5.2, en: 'What is this foam?', zh: '这是什么泡沫？' },
@@ -228,7 +241,8 @@ const CLIPS = [
   },
   {
     id: 'v4_d', title: '返程', stars: 4, topic: 'nature',
-    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@2680d4c/videos/v4_d.mp4',
+    video: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/videos/v4_d.mp4',
+    cover: 'https://cdn.jsdelivr.net/gh/leoyoyofiona/ai-english-app@54e8450/covers/v4_d.jpg',
     sentences: [
       { start: -0.1, end: 2.0, en: 'It\'s pretty cold.', zh: '挺冷的。' },
       { start: 2.0, end: 4.7, en: 'Let\'s head back.', zh: '我们回去吧。' },

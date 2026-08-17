@@ -48,7 +48,10 @@ const PlayerApp = (function () {
           if (!autoPaused) advancePhase();
         }
       });
-      video.addEventListener('play', () => {});
+      video.addEventListener('play', () => { hidePauseIcon(); });
+      video.addEventListener('pause', () => {
+        if (card.classList.contains('active') && videoEl && videoEl.currentTime > 0.5) showPauseIcon();
+      });
       video.addEventListener('timeupdate', () => {
         if (card.classList.contains('active')) updateSentenceSubtitle();
       });
@@ -295,9 +298,24 @@ const PlayerApp = (function () {
       videoEl.muted = false;
       const p = videoEl.play();
       if (p) p.catch(() => {});
+      hidePauseIcon();
     } else {
       videoEl.pause();
+      showPauseIcon();
     }
+  }
+
+  function showPauseIcon() {
+    const icon = document.getElementById('pauseIcon');
+    if (icon) {
+      icon.style.display = 'flex';
+      clearTimeout(icon._timer);
+      icon._timer = setTimeout(() => { icon.style.display = 'none'; }, 1200);
+    }
+  }
+  function hidePauseIcon() {
+    const icon = document.getElementById('pauseIcon');
+    if (icon) icon.style.display = 'none';
   }
 
 
@@ -306,6 +324,66 @@ const PlayerApp = (function () {
     clips = CLIPS.slice();
     renderFeed();
     activate(0);
+    bindHome();
+  }
+
+  // ============ 首页图文卡片流 ============
+  function bindHome() {
+    document.getElementById('homeBtn').addEventListener('click', openHome);
+    document.getElementById('homeClose').addEventListener('click', closeHome);
+    document.getElementById('homeTopics').addEventListener('click', (e) => {
+      const chip = e.target.closest('.home-topic-chip');
+      if (!chip) return;
+      document.querySelectorAll('.home-topic-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderHomeGrid(chip.dataset.topic);
+    });
+    renderHomeTopics();
+    renderHomeGrid('all');
+  }
+
+  function renderHomeTopics() {
+    const wrap = document.getElementById('homeTopics');
+    wrap.innerHTML = `<button class="home-topic-chip active" data-topic="all">🌟 全部</button>` +
+      TOPICS.map(t => `<button class="home-topic-chip" data-topic="${t.id}">${t.emoji} ${t.name}</button>`).join('');
+  }
+
+  function renderHomeGrid(topic) {
+    const grid = document.getElementById('homeGrid');
+    let list = CLIPS.slice();
+    if (topic !== 'all') list = list.filter(c => c.topic === topic);
+    if (list.length === 0) list = CLIPS.slice();
+    grid.innerHTML = list.map((c, i) => `
+      <div class="home-card" data-video="${c.id}">
+        <div class="home-card-cover" style="background-image:url('${c.cover}')"></div>
+        <div class="home-card-body">
+          <div class="home-card-title">${c.title}</div>
+          <div class="home-card-stars">${'★'.repeat(c.stars)}<span class="stars-dim">${'★'.repeat(5-c.stars)}</span></div>
+        </div>
+      </div>`).join('');
+    grid.querySelectorAll('.home-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const cid = card.dataset.video;
+        const idx = CLIPS.findIndex(c => c.id === cid);
+        if (idx >= 0) {
+          clips = CLIPS.slice();
+          closeHome();
+          activate(idx);
+        }
+      });
+    });
+  }
+
+  function openHome() {
+    if (videoEl) videoEl.pause();
+    document.getElementById('homeView').style.display = 'flex';
+  }
+  function closeHome() {
+    document.getElementById('homeView').style.display = 'none';
+    if (videoEl) {
+      videoEl.muted = false;
+      videoEl.play().catch(() => {});
+    }
   }
 
   return { init, start, swipeUp, swipeDown, applyFilter, activate };

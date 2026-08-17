@@ -17,11 +17,15 @@
   <!-- 视频卡片（由JS动态生成） -->
   <div class="video-feed" id="videoFeed"></div>
 
+  <!-- 暂停标志 -->
+  <div class="pause-icon" id="pauseIcon">⏸</div>
+
   <!-- 顶部栏 -->
   <div class="top-bar">
     <div class="brand-row">
       <div class="app-brand">LEO</div>
       <div class="app-name">影跟子读音抖版</div>
+      <div class="home-btn" id="homeBtn">🏠 首页</div>
       <div class="disclaimer-btn" id="disclaimerBtn">ⓘ</div>
     </div>
     <div class="filter-row" id="filterRow">
@@ -64,6 +68,16 @@
   </div>
 
 </main>
+
+<!-- ======================= 首页图文卡片流 ======================= -->
+<div class="home-view" id="homeView">
+  <div class="home-header">
+    <div class="home-title">🏠 精选内容</div>
+    <div class="home-close" id="homeClose">✕</div>
+  </div>
+  <div class="home-topics" id="homeTopics"></div>
+  <div class="home-grid" id="homeGrid"></div>
+</div>
 
 <div class="toast" id="toast"></div>
 

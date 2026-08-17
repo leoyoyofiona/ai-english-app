@@ -606,3 +606,127 @@ html, body {
   cursor: pointer;
   margin-top: 8px;
 }
+
+/* ============ 暂停标志 ============ */
+.pause-icon {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 32px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: none;
+  animation: popIn 0.2s ease;
+}
+
+/* ============ 首页按钮 ============ */
+.home-btn {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 16px;
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ============ 首页图文卡片流 ============ */
+.home-view {
+  position: fixed; inset: 0;
+  background: #f5f7ff;
+  z-index: 55;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: lessonIn 0.25s ease;
+}
+.home-header {
+  position: sticky; top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 10px;
+  background: rgba(245,247,255,0.95);
+  backdrop-filter: blur(8px);
+  z-index: 2;
+}
+.home-title { font-size: 18px; font-weight: 900; color: #1a1a2e; }
+.home-close {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #e8ecf7;
+  color: #555;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+.home-topics {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 16px 12px;
+  scrollbar-width: none;
+}
+.home-topics::-webkit-scrollbar { display: none; }
+.home-topic-chip {
+  flex-shrink: 0;
+  border: 1px solid #e0e5f2;
+  background: #fff;
+  color: #555;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 18px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.home-topic-chip.active {
+  background: linear-gradient(90deg, #4A5CFF, #6C7CFF);
+  color: #fff;
+  border-color: transparent;
+}
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 4px 16px 30px;
+}
+.home-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.home-card:active { transform: scale(0.97); }
+.home-card-cover {
+  aspect-ratio: 16/9;
+  background-size: cover;
+  background-position: center;
+  background-color: #e8ecf7;
+}
+.home-card-body { padding: 10px 12px 12px; }
+.home-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.home-card-stars { font-size: 11px; color: #FFB84D; }
+.home-card-stars .stars-dim { color: #dde3f0; }
