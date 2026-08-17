@@ -541,6 +541,7 @@ html, body {
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
+  pointer-events: auto;
 }
 .app-name {
   font-size: 13px;
@@ -559,6 +560,7 @@ html, body {
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   text-shadow: none;
+  pointer-events: auto;
 }
 .disclaimer-overlay {
   position: fixed; inset: 0;
@@ -637,6 +639,7 @@ html, body {
   padding: 4px 12px;
   cursor: pointer;
   white-space: nowrap;
+  pointer-events: auto;
 }
 /* 版本切换 */
 .version-switch {
@@ -645,6 +648,7 @@ html, body {
   border-radius: 16px;
   padding: 2px;
   gap: 2px;
+  pointer-events: auto;
 }
 .v-btn {
   border: none;
