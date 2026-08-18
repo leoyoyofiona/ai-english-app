@@ -114,9 +114,10 @@ def yt_stream():
             info = ydl.extract_info(f'https://www.youtube.com/watch?v={vid}', download=False)
         url = info.get('url')
     except Exception as ex:
-        return jsonify({'error': f'failed: {str(ex)[:150]}'}), 502
+        import yt_dlp as _yd
+        return jsonify({'error': f'failed(ytdlp={_yd.version.__version__},pot={bool(pot)}): {str(ex)[:120]}'}), 502
     if not url:
-        return jsonify({'error': 'no direct url'}), 502
+        return jsonify({'error': f'no direct url(ytdlp={yt_dlp.version.__version__},pot={bool(pot)})'}), 502
     with lock:
         stream_cache[vid] = {'url': url, 'ts': now}
         # 简单防膨胀
