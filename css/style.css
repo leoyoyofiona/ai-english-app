@@ -736,6 +736,10 @@ html, body {
   overflow-x: auto;
   padding: 8px 16px 12px;
   scrollbar-width: none;
+  /* 不透明背景：滚动时防止下方预览图透出遮挡分类字 */
+  background: #f5f7ff;
+  position: relative;
+  z-index: 3;
 }
 .home-topics::-webkit-scrollbar { display: none; }
 .home-topic-chip {

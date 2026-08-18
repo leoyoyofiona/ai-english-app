@@ -82,7 +82,7 @@ const PlayerApp = (function () {
         await ensurePool(15);
         batch = batch.concat(pickBiliBatch(15 - batch.length));
       }
-      clips = batch.concat(CLIPS.filter(c => c.platform === 'tencent'));
+      clips = batch;
     } else {
       let batch = pickYtBatch(15);
       if (batch.length < 15) {
@@ -379,12 +379,11 @@ const PlayerApp = (function () {
    */
   async function enterV2() {
     if (currentRegion === 'domestic') {
-      // 固定种子（直链已预取）打头 + 已有推荐 + 腾讯
-      const tencent = CLIPS.filter(c => c.platform === 'tencent');
+      // 纯B站流：固定种子（直链已预取）打头 + 推荐（全部video卡片，滑动/播放统一）
       const seeds = CLIPS.filter(c => c.platform === 'bilibili').slice(0, 5);
       let batch = pickBiliBatch(8);
       // 先同步渲染：种子直链已缓存 → activate()在点击手势内 → 带声音自动播放
-      clips = seeds.concat(batch).concat(tencent);
+      clips = seeds.concat(batch);
       renderFeed();
       activate(0);
       // 异步补充推荐（不打断播放）
@@ -596,7 +595,7 @@ const PlayerApp = (function () {
               ? (biliUrls[clip.bvid] && biliUrls[clip.bvid].url)
               : (ytUrls[clip.videoId] && ytUrls[clip.videoId].url);
             if (cached) {
-              if (v.getAttribute('src') !== cached) { v.src = cached; v.load(); }
+              if (v.getAttribute('src') !== cached) { v.src = cached; }
               v.muted = false;
               v.play().catch(() => {});
             } else {
@@ -607,7 +606,6 @@ const PlayerApp = (function () {
               fetchDirectUrl(clip).then(u => {
                 if (u && currentClip && currentClip.id === clip.id && card.classList.contains('active')) {
                   v.src = u;
-                  v.load();
                   v.muted = true;
                   const p2 = v.play();
                   if (p2) p2.then(() => { v.muted = false; }).catch(() => {});
@@ -1049,7 +1047,7 @@ const PlayerApp = (function () {
     if (btnV2) {
       const tag = '<span class="v-tag">V2</span>';
       btnV2.innerHTML = currentRegion === 'domestic'
-        ? tag + 'B站·腾讯视频'
+        ? tag + 'B站推荐流'
         : tag + 'YouTube·推荐流';
     }
     // 刷新按钮只在V2模式显示
