@@ -722,9 +722,11 @@ const PlayerApp = (function () {
   function startKaraokeLoop() {}
   function stopKaraokeLoop() {}
 
-  /** 更新卡片信息显示 */
+  /** 更新卡片信息显示（V2刷视频模式隐藏三遍听力圆点，V1保留） */
   function updateOverlay() {
-    document.getElementById('phaseDots').innerHTML = [0,1,2].map(i =>
+    const dots = document.getElementById('phaseDots');
+    if (!dots) return;
+    dots.innerHTML = currentVersion === 'v2' ? '' : [0,1,2].map(i =>
       `<div class="phase-dot${i === currentPhase ? ' active' : ''}"></div>`).join('');
   }
 
