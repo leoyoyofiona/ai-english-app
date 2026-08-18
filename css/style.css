@@ -706,18 +706,16 @@ html, body {
   z-index: 55;
   display: none;
   flex-direction: column;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;              /* 整体不滚动，卡片区内部滚动 */
   animation: lessonIn 0.25s ease;
 }
 .home-header {
-  position: sticky; top: 0;
+  flex-shrink: 0;                /* 固定不滚动 */
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: calc(14px + env(safe-area-inset-top)) 16px 10px;
-  background: rgba(245,247,255,0.95);
-  backdrop-filter: blur(8px);
+  background: #f5f7ff;
   z-index: 2;
 }
 .home-title { font-size: 18px; font-weight: 900; color: #1a1a2e; }
@@ -731,15 +729,12 @@ html, body {
   cursor: pointer;
 }
 .home-topics {
+  flex-shrink: 0;                /* 固定不滚动，分类字永远可见 */
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding: 8px 16px 12px;
   scrollbar-width: none;
-  /* sticky固定：滚动时分类菜单始终置顶可见，不被预览卡片盖住 */
-  position: sticky;
-  top: 56px;
-  z-index: 3;
   background: #f5f7ff;
 }
 .home-topics::-webkit-scrollbar { display: none; }
@@ -761,6 +756,9 @@ html, body {
   border-color: transparent;
 }
 .home-grid {
+  flex: 1;                        /* 占满剩余空间，内部独立滚动 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
