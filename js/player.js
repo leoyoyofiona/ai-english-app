@@ -722,12 +722,18 @@ const PlayerApp = (function () {
   function startKaraokeLoop() {}
   function stopKaraokeLoop() {}
 
-  /** 更新卡片信息显示（V2刷视频模式隐藏三遍听力圆点，V1保留） */
+  /** 更新卡片信息显示（V2刷视频模式彻底隐藏三遍听力圆点，V1保留） */
   function updateOverlay() {
     const dots = document.getElementById('phaseDots');
     if (!dots) return;
-    dots.innerHTML = currentVersion === 'v2' ? '' : [0,1,2].map(i =>
-      `<div class="phase-dot${i === currentPhase ? ' active' : ''}"></div>`).join('');
+    if (currentVersion === 'v2') {
+      dots.innerHTML = '';
+      dots.style.display = 'none';   // 彻底隐藏，防止任何路径重新显示
+    } else {
+      dots.innerHTML = [0,1,2].map(i =>
+        `<div class="phase-dot${i === currentPhase ? ' active' : ''}"></div>`).join('');
+      dots.style.display = 'flex';
+    }
   }
 
   /** 播放指定遍数 */
@@ -1081,6 +1087,9 @@ const PlayerApp = (function () {
     currentVersion = v;
     document.getElementById('btnV1').classList.toggle('active', v === 'v1');
     document.getElementById('btnV2').classList.toggle('active', v === 'v2');
+    // 兜底：V2隐藏三遍听力圆点，V1显示
+    const pDots = document.getElementById('phaseDots');
+    if (pDots) pDots.style.display = v === 'v2' ? 'none' : 'flex';
     if (v === 'v1') {
       clips = CLIPS.filter(c => c.type !== 'embed');
       renderFeed();
