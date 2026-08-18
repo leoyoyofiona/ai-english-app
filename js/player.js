@@ -213,6 +213,15 @@ const PlayerApp = (function () {
     return null;
   }
 
+  /**
+   * 页面加载后后台预取V2直链（种子+推荐池）。
+   * 关键：让用户点V2时直链已缓存 → activate()同步play()在点击手势内 → 浏览器允许带声音自动播放
+   */
+  function preloadV2Seeds() {
+    // 预取8个固定种子的直链（推荐池由enterV2首次进入时构建，避免并发冲突）
+    CLIPS.filter(c => c.platform === 'bilibili').forEach(c => fetchBiliUrl(c));
+  }
+
   // ============ 海外 YouTube 无限流（经 Render API） ============
   const OVERSEAS_API = 'https://leo-english-api.onrender.com'; // 部署后需替换为实际地址
   const YT_KEYWORDS = [
@@ -370,22 +379,30 @@ const PlayerApp = (function () {
    */
   async function enterV2() {
     if (currentRegion === 'domestic') {
-      let batch = pickBiliBatch(12);
-      if (batch.length < 12) {
-        showToast('⏳ 正在加载推荐视频...');
-        await ensurePool(12);
-        batch = batch.concat(pickBiliBatch(12 - batch.length));
+      // 固定种子（直链已预取）打头 + 已有推荐 + 腾讯
+      const tencent = CLIPS.filter(c => c.platform === 'tencent');
+      const seeds = CLIPS.filter(c => c.platform === 'bilibili').slice(0, 5);
+      let batch = pickBiliBatch(8);
+      // 先同步渲染：种子直链已缓存 → activate()在点击手势内 → 带声音自动播放
+      clips = seeds.concat(batch).concat(tencent);
+      renderFeed();
+      activate(0);
+      // 异步补充推荐（不打断播放）
+      if (batch.length < 8) {
+        await ensurePool(8);
+        const more = pickBiliBatch(8 - batch.length);
+        if (more.length) appendClips(more);
       }
-      clips = batch.concat(CLIPS.filter(c => c.platform === 'tencent'));
-    } else {
-      let batch = pickYtBatch(12);
-      if (batch.length < 12) {
-        showToast('⏳ 正在连接海外服务器...');
-        await ytEnsurePool(12);
-        batch = batch.concat(pickYtBatch(12 - batch.length));
-      }
-      clips = batch;
+      return;
     }
+    // 国外：YouTube推荐（iframe，autoplay参数）
+    let batch = pickYtBatch(12);
+    if (batch.length < 12) {
+      showToast('⏳ 正在连接海外服务器...');
+      await ytEnsurePool(12);
+      batch = batch.concat(pickYtBatch(12 - batch.length));
+    }
+    clips = batch;
     if (clips.length === 0) clips = CLIPS.filter(c => c.type === 'embed');
     renderFeed();
     activate(0);
@@ -583,14 +600,17 @@ const PlayerApp = (function () {
               v.muted = false;
               v.play().catch(() => {});
             } else {
+              // 无缓存：静音起播（浏览器允许），直链到达后换源；播放开始后再解除静音
+              // （播放中unmute不需要手势，iOS/浏览器均允许；若play被拦则保持静音，用户点击开声音）
               v.muted = true;
               v.play().catch(() => {});
               fetchDirectUrl(clip).then(u => {
                 if (u && currentClip && currentClip.id === clip.id && card.classList.contains('active')) {
                   v.src = u;
                   v.load();
-                  v.play().catch(() => {});
-                  v.muted = false;
+                  v.muted = true;
+                  const p2 = v.play();
+                  if (p2) p2.then(() => { v.muted = false; }).catch(() => {});
                 }
               });
             }
@@ -965,6 +985,8 @@ const PlayerApp = (function () {
     updateRegionUI();
     // 续播上次学习进度
     resumeLastProgress();
+    // 后台预取V2直链（保证首次进V2带声音自动播放）
+    preloadV2Seeds();
   }
 
   /** 从上次进度续播（进入应用时调用） */
