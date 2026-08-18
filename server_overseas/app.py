@@ -64,7 +64,7 @@ DEFAULT_KEYWORDS = [
 
 @app.route('/api/health')
 def health():
-    return 'ok'
+    return jsonify({'ok': True, 'pot_provider': bool(cached_po_token())})
 
 
 @app.route('/api/yt/search')
