@@ -736,10 +736,11 @@ html, body {
   overflow-x: auto;
   padding: 8px 16px 12px;
   scrollbar-width: none;
-  /* 不透明背景：滚动时防止下方预览图透出遮挡分类字 */
-  background: #f5f7ff;
-  position: relative;
+  /* sticky固定：滚动时分类菜单始终置顶可见，不被预览卡片盖住 */
+  position: sticky;
+  top: 56px;
   z-index: 3;
+  background: #f5f7ff;
 }
 .home-topics::-webkit-scrollbar { display: none; }
 .home-topic-chip {
@@ -763,7 +764,7 @@ html, body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  padding: 4px 16px 30px;
+  padding: 10px 16px 30px;
 }
 .home-card {
   background: #fff;
