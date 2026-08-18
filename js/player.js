@@ -170,7 +170,7 @@ const PlayerApp = (function () {
     if (clip.cid) return clip.cid;
     if (cidCache[clip.bvid]) return cidCache[clip.bvid];
     try {
-      const r = await fetch(`/api/bili/x/web-interface/view?bvid=${clip.bvid}`);
+      const r = await fetch(`/app/api/bili/x/web-interface/view?bvid=${clip.bvid}`);
       const d = await r.json();
       const cid = d && d.data && d.data.cid;
       if (cid) cidCache[clip.bvid] = cid;
@@ -184,12 +184,12 @@ const PlayerApp = (function () {
     const cid = await getBiliCid(clip);
     if (!cid) return null;
     try {
-      const r = await fetch(`/api/bili/x/player/playurl?bvid=${clip.bvid}&cid=${cid}&qn=32&otype=json&fnver=0&fnval=1`);
+      const r = await fetch(`/app/api/bili/x/player/playurl?bvid=${clip.bvid}&cid=${cid}&qn=32&otype=json&fnver=0&fnval=1`);
       const d = await r.json();
       const url = d && d.data && d.data.durl && d.data.durl[0] && d.data.durl[0].url;
       if (url) {
         // 走本地代理（带B站Referer绕过防盗链），video 播放
-        const proxied = '/bili-mp4/?u=' + encodeURIComponent(url);
+        const proxied = '/app/bili-mp4/?u=' + encodeURIComponent(url);
         biliUrls[clip.bvid] = { url: proxied, ts: Date.now() };
         return proxied;
       }
@@ -324,7 +324,7 @@ const PlayerApp = (function () {
         });
       }
       const jobs = BILI_SEEDS.slice(0, 10).map(bvid =>
-        fetch(`/api/bili/x/web-interface/archive/related?bvid=${bvid}`)
+        fetch(`/app/api/bili/x/web-interface/archive/related?bvid=${bvid}`)
           .then(r => r.json())
           .then(d => (d && d.data) || [])
           .catch(() => [])
