@@ -275,7 +275,7 @@ const PlayerApp = (function () {
       cover: v.thumb || '',
       source: 'YouTube · 推荐',
       type: 'embed',
-      platform: 'ytdirect',
+      platform: 'youtube',
       region: 'overseas',
       stars: 3,
       topic: 'daily'
@@ -609,7 +609,7 @@ const PlayerApp = (function () {
     });
 
     const activeClip = clips[index];
-    if (activeClip && activeClip.type === 'embed' && activeClip.platform !== 'bilibili' && activeClip.platform !== 'ytdirect') {
+    if (activeClip && activeClip.type === 'embed' && activeClip.platform !== 'bilibili') {
       // 腾讯/油管 iframe
       videoEl = null;
       updateOverlay();
